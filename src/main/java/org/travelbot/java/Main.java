@@ -6,7 +6,7 @@ import org.travelbot.java.MessengerVertxBootstrap;
 public class Main {
 
 	public static void main(String[] args) {
-		Application app = new Application();
+		Application app = new Application(() -> new MessengerApplicationContext());
 		app.run(new MessengerVertxBootstrap());
 	}
 }
