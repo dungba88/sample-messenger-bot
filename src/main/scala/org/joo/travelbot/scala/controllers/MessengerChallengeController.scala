@@ -1,4 +1,4 @@
-package org.joo.travelbot.controllers
+package org.joo.travelbot.scala.controllers
 
 import io.vertx.ext.web.RoutingContext
 

@@ -19,4 +19,28 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
+
+	<builds>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>scala</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<mainClass>org.joo.travelbot.scala.Main</mainClass>
+					<arguments>
+						<argument>foo</argument>
+						<argument>bar</argument>
+					</arguments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</builds>
 </project>
