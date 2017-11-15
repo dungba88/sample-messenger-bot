@@ -1,7 +1,7 @@
 package org.travelbot.java;
 
 import org.joo.scorpius.Application;
-import org.travelbot.scala.MessengerVertxBootstrap;
+import org.travelbot.java.MessengerVertxBootstrap;
 
 public class Main {
 
