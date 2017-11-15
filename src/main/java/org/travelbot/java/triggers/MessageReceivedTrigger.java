@@ -22,7 +22,7 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
 		MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext.getApplicationContext();
 		MessengerEvent event = (MessengerEvent) executionContext.getRequest();
 		
-		final String recipientId = event.getOriginalEvent().recipientId();
+		final String recipientId = event.getOriginalEvent().senderId();
 		final String text = event.getOriginalEvent().asTextMessageEvent().text();
 		final Payload payload = MessagePayload.create(recipientId, TextMessage.create(text));
 		
