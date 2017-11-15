@@ -17,8 +17,6 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
 
 	@Override
 	public void execute(TriggerExecutionContext executionContext) throws TriggerExecutionException {
-		executionContext.finish(new MessengerResponse());
-		
 		MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext.getApplicationContext();
 		MessengerEvent event = (MessengerEvent) executionContext.getRequest();
 		
@@ -31,5 +29,6 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
 		} catch (MessengerApiException | MessengerIOException e) {
 			throw new TriggerExecutionException(e);
 		}
+		executionContext.finish(new MessengerResponse());
 	}
 }
