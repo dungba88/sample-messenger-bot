@@ -5,13 +5,13 @@ import io.vertx.ext.web.RoutingContext;
 
 public class MessengerChallengeController {
 
-  public void handle(RoutingContext rc) {
-    HttpServerResponse response = rc.response();
-    response.putHeader("Content-Type", "text/plain");
+	public void handle(RoutingContext rc) {
+		HttpServerResponse response = rc.response();
+		response.putHeader("Content-Type", "text/plain");
 
-    String verifyToken = rc.request().getParam("hub.verify_token");
-    String challenge = rc.request().getParam("hub.challenge");
+		String verifyToken = rc.request().getParam("hub.verify_token");
+		String challenge = rc.request().getParam("hub.challenge");
 
-    response.end(challenge);
-  }
+		response.end(challenge);
+	}
 }
