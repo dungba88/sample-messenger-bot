@@ -17,11 +17,11 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
 
 	@Override
 	public void execute(TriggerExecutionContext executionContext) throws TriggerExecutionException {
+		executionContext.finish(null);
+
 		MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext.getApplicationContext();
 		MessengerEvent event = (MessengerEvent) executionContext.getRequest();
 		
-		System.out.println("Time to reach trigger: " + (System.currentTimeMillis() - event.getCreatedTime()) + "ms");
-
 		final String recipientId = event.getOriginalEvent().senderId();
 		final String text = event.getOriginalEvent().asTextMessageEvent().text();
 		final Payload payload = MessagePayload.create(recipientId, TextMessage.create(text));
@@ -33,6 +33,5 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
 			throw new TriggerExecutionException(e);
 		}
 		System.out.println("Inner :" + (System.currentTimeMillis() - start) + "ms");
-		executionContext.finish(new MessengerResponse());
 	}
 }

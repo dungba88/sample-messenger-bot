@@ -26,7 +26,6 @@ public class MessengerWebhookController {
 	}
 
 	public void handle(RoutingContext rc) {
-		long start = System.currentTimeMillis();
 		HttpServerResponse response = rc.response();
 		response.putHeader("Content-Type", "application/json");
 		
@@ -34,15 +33,13 @@ public class MessengerWebhookController {
 		String signature = rc.request().getHeader("X-Hub-Signature");
 		
 		try {
-			messenger.onReceiveEvents(payload, Optional.empty(), event -> {
-				System.out.println("Decode event: " + (System.currentTimeMillis() - start) + "ms");
+			messenger.onReceiveEvents(payload, Optional.of(signature), event -> {
 				if (!event.isTextMessageEvent()) {
 					response.end();
 					return;
 				}
 				manager.fire("fb_msg_received", new MessengerEvent(event), triggerResponse -> {
 					onDone(triggerResponse, response, rc);
-					System.out.println((System.currentTimeMillis() - start) + "ms");
 				}, exception -> {
 					onFail(exception, response, rc);
 				});
