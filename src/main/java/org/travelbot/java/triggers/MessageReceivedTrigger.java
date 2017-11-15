@@ -20,6 +20,8 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
 		MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext.getApplicationContext();
 		MessengerEvent event = (MessengerEvent) executionContext.getRequest();
 		
+		System.out.println("Time to reach trigger: " + (System.currentTimeMillis() - event.getCreatedTime()) + "ms");
+
 		final String recipientId = event.getOriginalEvent().senderId();
 		final String text = event.getOriginalEvent().asTextMessageEvent().text();
 		final Payload payload = MessagePayload.create(recipientId, TextMessage.create(text));

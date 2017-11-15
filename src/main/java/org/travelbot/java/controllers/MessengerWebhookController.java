@@ -35,6 +35,7 @@ public class MessengerWebhookController {
 		
 		try {
 			messenger.onReceiveEvents(payload, Optional.empty(), event -> {
+				System.out.println("Decode event: " + (System.currentTimeMillis() - start) + "ms");
 				if (!event.isTextMessageEvent()) {
 					response.end();
 					return;
