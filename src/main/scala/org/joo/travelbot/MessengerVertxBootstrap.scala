@@ -1,14 +1,17 @@
 package org.joo.travelbot
 
-import org.joo.scorpius.support.vertx.VertxBootstrap
-import io.vertx.core.VertxOptions
-import org.joo.scorpius.trigger.handle.disruptor.DisruptorHandlingStrategy
 import java.util.concurrent.Executors
-import com.lmax.disruptor.dsl.ProducerType
-import com.lmax.disruptor.YieldingWaitStrategy
-import io.vertx.ext.web.Router
-import io.vertx.core.Vertx
+
+import org.joo.scorpius.support.vertx.VertxBootstrap
+import org.joo.scorpius.trigger.handle.disruptor.DisruptorHandlingStrategy
 import org.joo.travelbot.controllers.MessengerChallengeController
+
+import com.lmax.disruptor.YieldingWaitStrategy
+import com.lmax.disruptor.dsl.ProducerType
+
+import io.vertx.core.Vertx
+import io.vertx.core.VertxOptions
+import io.vertx.ext.web.Router
 
 class MessengerVertxBootstrap extends VertxBootstrap {
   
