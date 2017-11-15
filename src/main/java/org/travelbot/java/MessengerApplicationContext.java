@@ -1,5 +1,15 @@
 package org.travelbot.java;
 
+import java.io.IOException;
+import java.util.Optional;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.joo.scorpius.ApplicationContext;
 import org.joo.scorpius.support.BaseResponse;
 import org.joo.scorpius.support.TriggerExecutionException;
@@ -9,6 +19,7 @@ import org.joo.scorpius.support.deferred.AsyncDeferredObject;
 import org.joo.scorpius.support.deferred.Deferred;
 
 import com.github.messenger4j.Messenger;
+import com.github.messenger4j.spi.MessengerHttpClient;
 
 public class MessengerApplicationContext extends ApplicationContext {
 
@@ -23,7 +34,22 @@ public class MessengerApplicationContext extends ApplicationContext {
 	public MessengerApplicationContext(Factory<Deferred<BaseResponse, TriggerExecutionException>> deferredFactory,
 			Factory<TriggerExecutionContextBuilder> executionContextBuilderFactory) {
 		super(deferredFactory, executionContextBuilderFactory);
-		messenger = Messenger.create(ACCESS_TOKEN, APP_SECRET, VERIFY_TOKEN);
+		
+		CloseableHttpAsyncClient httpClient = HttpAsyncClients.createDefault();
+		httpClient.start();
+		
+		MessengerHttpClient customClient = new MessengerHttpClient() {
+			
+			@Override
+			public HttpResponse execute(HttpMethod httpMethod, String url, String jsonBody) throws IOException {
+				HttpPost request = new HttpPost(url);
+				HttpEntity entity = new ByteArrayEntity(jsonBody.getBytes());
+		        request.setEntity(entity);
+				httpClient.execute(request, null);
+				return null;
+			}
+		};
+		messenger = Messenger.create(ACCESS_TOKEN, APP_SECRET, VERIFY_TOKEN, Optional.of(customClient));
 	}
 	
 	public MessengerApplicationContext() {
