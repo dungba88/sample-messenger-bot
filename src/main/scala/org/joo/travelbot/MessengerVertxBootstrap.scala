@@ -10,7 +10,7 @@ import io.vertx.ext.web.Router
 import io.vertx.core.Vertx
 import org.joo.travelbot.controllers.MessengerChallengeController
 
-object MessengerVertxBootstrap extends VertxBootstrap {
+class MessengerVertxBootstrap extends VertxBootstrap {
   
   def run() {
     configureTriggers()
