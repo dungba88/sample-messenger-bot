@@ -24,11 +24,13 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
 		final String text = event.getOriginalEvent().asTextMessageEvent().text();
 		final Payload payload = MessagePayload.create(recipientId, TextMessage.create(text));
 		
+		long start = System.currentTimeMillis();
 		try {
 			applicationContext.getMessenger().send(payload);
 		} catch (MessengerApiException | MessengerIOException e) {
 			throw new TriggerExecutionException(e);
 		}
+		System.out.println("Inner :" + (System.currentTimeMillis() - start) + "ms");
 		executionContext.finish(new MessengerResponse());
 	}
 }
