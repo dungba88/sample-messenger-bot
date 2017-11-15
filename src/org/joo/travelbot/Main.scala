@@ -6,6 +6,6 @@ object Main {
   
   def main(args: Array[String]) {
       val app = new Application
-      app.run(new MessengerVertxBootstrap())
+      app.run(MessengerVertxBootstrap)
   }
 }
