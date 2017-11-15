@@ -19,7 +19,7 @@ class MessengerVertxBootstrap extends VertxBootstrap {
     configureTriggers()
     
     val options = new VertxOptions().setEventLoopPoolSize(8);
-    configureServer(options)
+    configureServer(options, 9090)
   }
   
   override def configureRoutes(vertx: Vertx): Router = {
