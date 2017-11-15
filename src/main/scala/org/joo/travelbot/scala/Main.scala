@@ -2,7 +2,7 @@ package org.joo.travelbot.scala
 
 import org.joo.scorpius.Application
 
-object Main {
+class Main {
   
   def main(args: Array[String]) {
       val app = new Application
