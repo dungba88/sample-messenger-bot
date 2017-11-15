@@ -1,10 +1,10 @@
-package org.joo.travelbot.scala
+package org.travelbot.scala
 
 import java.util.concurrent.Executors
 
 import org.joo.scorpius.support.vertx.VertxBootstrap
 import org.joo.scorpius.trigger.handle.disruptor.DisruptorHandlingStrategy
-import org.joo.travelbot.scala.controllers.MessengerChallengeController
+import org.travelbot.scala.controllers.MessengerChallengeController
 
 import com.lmax.disruptor.YieldingWaitStrategy
 import com.lmax.disruptor.dsl.ProducerType

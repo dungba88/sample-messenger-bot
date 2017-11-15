@@ -1,4 +1,4 @@
-package org.joo.travelbot.scala
+package org.travelbot.scala
 
 import org.joo.scorpius.Application
 
