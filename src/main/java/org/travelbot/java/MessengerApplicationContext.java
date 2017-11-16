@@ -15,7 +15,7 @@ import org.joo.scorpius.support.builders.Factory;
 import org.joo.scorpius.support.builders.TriggerExecutionContextBuilder;
 import org.joo.scorpius.support.deferred.AsyncDeferredObject;
 import org.joo.scorpius.support.deferred.Deferred;
-import org.joo.scorpius.support.id.TimeBasedIdGenerator;
+import org.joo.scorpius.support.builders.id.TimeBasedIdGenerator;
 
 import com.github.messenger4j.Messenger;
 import com.github.messenger4j.spi.MessengerHttpClient;

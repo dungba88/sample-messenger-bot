@@ -1,8 +1,8 @@
 package org.travelbot.java.triggers;
 
 import org.joo.scorpius.support.TriggerExecutionException;
-import org.joo.scorpius.trigger.AbstractTrigger;
 import org.joo.scorpius.trigger.TriggerExecutionContext;
+import org.joo.scorpius.trigger.impl.AbstractTrigger;
 import org.travelbot.java.MessengerApplicationContext;
 import org.travelbot.java.dto.MessengerEvent;
 import org.travelbot.java.dto.MessengerResponse;
