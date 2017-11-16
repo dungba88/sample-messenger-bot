@@ -20,14 +20,11 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
 	@Override
 	public void execute(TriggerExecutionContext executionContext) throws TriggerExecutionException {
 		executionContext.finish(null);
-
 		MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext.getApplicationContext();
 		MessengerEvent event = (MessengerEvent) executionContext.getRequest();
 		
 		final String recipientId = event.getOriginalEvent().senderId();
 		final String text = event.getOriginalEvent().asTextMessageEvent().text();
-		
-		System.out.println("senderId " + recipientId);
 		
 		long start = System.currentTimeMillis();
 		try {
