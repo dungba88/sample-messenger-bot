@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
@@ -17,6 +15,7 @@ import org.joo.scorpius.support.builders.Factory;
 import org.joo.scorpius.support.builders.TriggerExecutionContextBuilder;
 import org.joo.scorpius.support.deferred.AsyncDeferredObject;
 import org.joo.scorpius.support.deferred.Deferred;
+import org.joo.scorpius.support.id.TimeBasedIdGenerator;
 
 import com.github.messenger4j.Messenger;
 import com.github.messenger4j.spi.MessengerHttpClient;
@@ -32,8 +31,9 @@ public class MessengerApplicationContext extends ApplicationContext {
 	private Messenger messenger;
 	
 	public MessengerApplicationContext(Factory<Deferred<BaseResponse, TriggerExecutionException>> deferredFactory,
-			Factory<TriggerExecutionContextBuilder> executionContextBuilderFactory) {
-		super(deferredFactory, executionContextBuilderFactory);
+			Factory<TriggerExecutionContextBuilder> executionContextBuilderFactory,
+			Factory<Optional<String>> idGenerator) {
+		super(deferredFactory, executionContextBuilderFactory, idGenerator);
 		
 		CloseableHttpAsyncClient httpClient = HttpAsyncClients.createDefault();
 		httpClient.start();
@@ -54,7 +54,8 @@ public class MessengerApplicationContext extends ApplicationContext {
 	
 	public MessengerApplicationContext() {
 		this(() -> new AsyncDeferredObject<>(), 
-				() -> new TriggerExecutionContextBuilder());
+				() -> new TriggerExecutionContextBuilder(),
+				new TimeBasedIdGenerator());
 	}
 
 	public Messenger getMessenger() {
