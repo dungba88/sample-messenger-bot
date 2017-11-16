@@ -1,5 +1,7 @@
 package org.travelbot.java.controllers;
 
+import org.travelbot.java.UnauthorizedAccessException;
+
 import com.github.messenger4j.Messenger;
 import com.github.messenger4j.exception.MessengerVerificationException;
 
@@ -25,8 +27,8 @@ public class MessengerChallengeController {
 		try {
 			messenger.verifyWebhook(mode, verifyToken);
 			response.end(challenge);
-		} catch (MessengerVerificationException e) {
-			rc.fail(e);
+		} catch (MessengerVerificationException | IllegalArgumentException e) {
+			rc.fail(new UnauthorizedAccessException(e));
 		}
 	}
 }

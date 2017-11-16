@@ -23,5 +23,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/scorpius"/>
+	<classpathentry kind="lib" path="libs/joo-scorpius-1.1.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
