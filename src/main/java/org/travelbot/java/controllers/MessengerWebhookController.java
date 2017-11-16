@@ -24,6 +24,7 @@ public class MessengerWebhookController extends VertxMessageController {
 	}
 
 	public void handle(RoutingContext rc) {
+		long start = System.currentTimeMillis();
 		HttpServerResponse response = rc.response();
 		response.putHeader("Content-Type", "application/json");
 		
@@ -35,7 +36,22 @@ public class MessengerWebhookController extends VertxMessageController {
 		
 		try {
 			messenger.onReceiveEvents(payload, Optional.empty(), event -> {
-				handleEvent(rc, event);
+				String eventName = getEventNameForMessengerEvent(event);
+				if (eventName == null) {
+					rc.response().end();
+					return;
+				}
+				
+				MessengerEvent msgEvent = new MessengerEvent(event);
+				msgEvent.attachTraceId(getTraceId(rc, triggerManager.getApplicationContext()));
+				
+				triggerManager.fire(eventName, msgEvent, triggerResponse -> {
+					onDone(triggerResponse, rc.response(), rc);
+					long elapsed = System.currentTimeMillis() - start;
+					System.out.println("total: " + elapsed + "ms");
+				}, exception -> {
+					onFail(exception, rc.response(), rc);
+				});
 			});
 		} catch (MessengerVerificationException ex) {
 			rc.fail(ex);
@@ -43,20 +59,7 @@ public class MessengerWebhookController extends VertxMessageController {
 	}
 
 	private void handleEvent(RoutingContext rc, Event event) {
-		String eventName = getEventNameForMessengerEvent(event);
-		if (eventName == null) {
-			rc.response().end();
-			return;
-		}
 		
-		MessengerEvent msgEvent = new MessengerEvent(event);
-		msgEvent.attachTraceId(getTraceId(rc, triggerManager.getApplicationContext()));
-		
-		triggerManager.fire(eventName, msgEvent, triggerResponse -> {
-			onDone(triggerResponse, rc.response(), rc);
-		}, exception -> {
-			onFail(exception, rc.response(), rc);
-		});
 	}
 	
 	private String getEventNameForMessengerEvent(Event event) {

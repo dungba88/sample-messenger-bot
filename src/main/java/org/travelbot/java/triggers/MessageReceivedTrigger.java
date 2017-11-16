@@ -27,6 +27,8 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
 		final String recipientId = event.getOriginalEvent().senderId();
 		final String text = event.getOriginalEvent().asTextMessageEvent().text();
 		
+		System.out.println("senderId " + recipientId);
+		
 		long start = System.currentTimeMillis();
 		try {
 			sendAction(applicationContext, recipientId, SenderAction.MARK_SEEN);
