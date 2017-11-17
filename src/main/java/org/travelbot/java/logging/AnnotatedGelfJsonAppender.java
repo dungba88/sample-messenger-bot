@@ -89,14 +89,15 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
     @Override
     public void append(LogEvent event) {
         final Layout<? extends Serializable> layout = getLayout();
+        String shortMessage = event.getMessage().getFormattedMessage();
         final String formattedMessage;
         if (layout == null) {
-            formattedMessage = event.getMessage().getFormattedMessage();
+            formattedMessage = shortMessage;
         } else {
             formattedMessage = new String(layout.toByteArray(event), StandardCharsets.UTF_8);
         }
 
-        final GelfMessageBuilder builder = new GelfMessageBuilder(formattedMessage, hostName)
+        final GelfMessageBuilder builder = new GelfMessageBuilder(shortMessage, hostName)
                 .timestamp(event.getTimeMillis() / 1000d)
                 .level(GelfMessageLevel.fromNumericLevel(Severity.getSeverity(event.getLevel()).getCode()))
                 .additionalField("loggerName", event.getLoggerName())
@@ -156,6 +157,8 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
         if (!additionalFields.isEmpty()) {
             builder.additionalFields(additionalFields);
         }
+        
+        builder.fullMessage(formattedMessage);
 
         final GelfMessage gelfMessage = builder.build();
         try {
