@@ -4,8 +4,8 @@ import org.joo.scorpius.support.TriggerExecutionException;
 import org.joo.scorpius.trigger.TriggerExecutionContext;
 import org.joo.scorpius.trigger.impl.AbstractTrigger;
 import org.travelbot.java.MessengerApplicationContext;
-import org.travelbot.java.dto.MessengerEvent;
-import org.travelbot.java.dto.MessengerResponse;
+import org.travelbot.java.dto.messenger.MessengerEvent;
+import org.travelbot.java.dto.messenger.MessengerResponse;
 
 import com.github.messenger4j.exception.MessengerApiException;
 import com.github.messenger4j.exception.MessengerIOException;

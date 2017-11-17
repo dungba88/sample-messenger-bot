@@ -1,4 +1,4 @@
-package org.travelbot.java.dto;
+package org.travelbot.java.dto.messenger;
 import org.joo.scorpius.support.BaseResponse;
 
 public class MessengerResponse extends BaseResponse {

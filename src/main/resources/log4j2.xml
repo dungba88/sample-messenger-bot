@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF">
+	<appenders>
+		<JsonGelf name="gelfAppender" server="localhost" port="12201" hostName="localhost">
+            <PatternLayout pattern="%logger{36} - %msg%n"/>
+            <ThresholdFilter level="debug"/>
+        </JsonGelf>
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n" />
+			<ThresholdFilter level="error"/>
+		</Console>
+	</appenders>
+	<loggers>
+		<logger level="OFF" name="org.joo.scorpius.trigger.impl.DefaultTriggerExecutionContext">
+		</logger>
+		<root level="debug">
+			<appender-ref ref="console" />
+			<appender-ref ref="gelfAppender" />
+		</root>
+	</loggers>
+</configuration>
