@@ -27,7 +27,6 @@ public class MessengerWebhookController extends VertxMessageController {
 	}
 
 	public void handle(RoutingContext rc) {
-		long start = System.currentTimeMillis();
 		HttpServerResponse response = rc.response();
 		response.putHeader("Content-Type", "application/json");
 		
@@ -39,8 +38,6 @@ public class MessengerWebhookController extends VertxMessageController {
 		if (triggerManager.isEventEnabled(TriggerEvent.CUSTOM))
 			triggerManager.notifyEvent(TriggerEvent.CUSTOM, new CustomMessage("start_request", new HttpRequestMessage(rc)));
 		
-		System.out.println("Logging: " + (System.currentTimeMillis() - start) + "ms");
-
 		String payload = rc.getBodyAsString();
 //		String signature = rc.request().getHeader("X-Hub-Signature");
 		
