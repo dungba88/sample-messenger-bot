@@ -15,11 +15,13 @@ import com.github.messenger4j.Messenger;
 
 public class MessengerApplicationContext extends ApplicationContext {
 
-	public final static String ACCESS_TOKEN = "EAABzrMo98iQBAJpePVHI5PtyxTm0jg4SZCJORFWDH6WKeCjAhWLCMA1VeuXRzk50yXxWxGWbZBNe9NnpPX4T2G7d19oZAVj0bHbJMZBO0z5IUEHxyxft1oZASAq7ZBoQsN5ddeIhJ12pEqsMLhpV51beNOrVWWuuuYNPLudeyYrwZDZD";
+	public final static String ACCESS_TOKEN = System.getenv("AccessToken");
 	
-	public final static String APP_SECRET = "bc1cb829a28c5df32bc298433b2a32d2";
+	public final static String APP_SECRET = System.getenv("AppSecret");
 	
-	public final static String VERIFY_TOKEN = "MeoHeoCho";
+	public final static String VERIFY_TOKEN = System.getenv("VerifyToken");
+	
+	public final static String PORT = System.getenv("PORT");
 
 	private Messenger messenger;
 	
@@ -53,5 +55,12 @@ public class MessengerApplicationContext extends ApplicationContext {
 
 	public Messenger getMessenger() {
 		return messenger;
+	}
+	
+	public int getPort() {
+		if (PORT != null && !PORT.isEmpty()) {
+			return Integer.parseInt(PORT);
+		}
+		return 9090;
 	}
 }
