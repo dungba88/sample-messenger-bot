@@ -15,7 +15,7 @@
 		</logger>
 		<root level="debug">
 			<appender-ref ref="console" />
-			<appender-ref ref="gelfAppender" />
+			<!--<appender-ref ref="gelfAppender" />-->
 		</root>
 	</loggers>
 </configuration>

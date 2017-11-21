@@ -41,19 +41,12 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	public void run() {
+		MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext)applicationContext;
+
 		configureTriggers();
 
 		VertxOptions options = new VertxOptions().setEventLoopPoolSize(8);
-		int port = getPort();
-		configureServer(options, port);
-	}
-
-	private int getPort() {
-		String portEnv = System.getenv("PORT");
-		if (portEnv != null && !portEnv.isEmpty()) {
-			return Integer.parseInt(portEnv);
-		}
-		return 9090;
+		configureServer(options, msgApplicationContext.getPort());
 	}
 
 	protected Router configureRoutes(Vertx vertx) {
