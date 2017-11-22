@@ -7,7 +7,7 @@
         </JsonGelf>
 		<Console name="console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n" />
-			<ThresholdFilter level="error"/>
+			<ThresholdFilter level="debug"/>
 		</Console>
 	</appenders>
 	<loggers>
