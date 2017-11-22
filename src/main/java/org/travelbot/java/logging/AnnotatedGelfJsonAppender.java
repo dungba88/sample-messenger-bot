@@ -254,7 +254,6 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
      * @return a new GELF provider
      */
     @PluginFactory
-    @SuppressWarnings("unused")
     public static AnnotatedGelfJsonAppender createGelfAppender(@PluginElement("Filter") Filter filter,
                                                   @PluginElement("Layout") Layout<? extends Serializable> layout,
                                                   @PluginElement(value = "AdditionalFields") final KeyValuePair[] additionalFields,
