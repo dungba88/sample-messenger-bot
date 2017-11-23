@@ -99,6 +99,7 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
 	private int extractStatusCodeFromFailure(RoutingContext rc) {
 		if (rc.statusCode() != -1) return rc.statusCode();
 		if (rc.failure() instanceof UnauthorizedAccessException) return 403;
+		if (rc.failure() instanceof BadRequestException) return 400;
 		return 500;
 	}
 	

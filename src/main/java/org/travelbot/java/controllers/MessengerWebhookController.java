@@ -7,12 +7,14 @@ import org.joo.scorpius.support.message.CustomMessage;
 import org.joo.scorpius.support.vertx.VertxMessageController;
 import org.joo.scorpius.trigger.TriggerEvent;
 import org.joo.scorpius.trigger.TriggerManager;
+import org.travelbot.java.BadRequestException;
 import org.travelbot.java.dto.messenger.MessengerEvent;
 import org.travelbot.java.logging.HttpRequestMessage;
 
 import com.github.messenger4j.Messenger;
 import com.github.messenger4j.exception.MessengerVerificationException;
 import com.github.messenger4j.webhook.Event;
+import com.google.gson.JsonSyntaxException;
 
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
@@ -39,6 +41,9 @@ public class MessengerWebhookController extends VertxMessageController {
 			triggerManager.notifyEvent(TriggerEvent.CUSTOM, new CustomMessage("start_request", new HttpRequestMessage(rc)));
 		
 		String payload = rc.getBodyAsString();
+		if (payload == null || payload.isEmpty())
+			throw new BadRequestException("payload is null");
+		
 //		String signature = rc.request().getHeader("X-Hub-Signature");
 		
 //		if (signature == null)
@@ -50,6 +55,8 @@ public class MessengerWebhookController extends VertxMessageController {
 			});
 		} catch (MessengerVerificationException ex) {
 			rc.fail(ex);
+		} catch (JsonSyntaxException ex) {
+			throw new BadRequestException(ex);
 		}
 	}
 

@@ -1,15 +1,7 @@
 package org.travelbot.java;
 
-import java.util.Optional;
-
 import org.joo.scorpius.ApplicationContext;
-import org.joo.scorpius.support.BaseResponse;
-import org.joo.scorpius.support.TriggerExecutionException;
-import org.joo.scorpius.support.builders.Factory;
-import org.joo.scorpius.support.builders.TriggerExecutionContextBuilder;
-import org.joo.scorpius.support.builders.id.TimeBasedIdGenerator;
-import org.joo.scorpius.support.deferred.AsyncDeferredObject;
-import org.joo.scorpius.support.deferred.Deferred;
+import org.joo.scorpius.support.di.ApplicationModuleInjector;
 
 import com.github.messenger4j.Messenger;
 
@@ -25,10 +17,8 @@ public class MessengerApplicationContext extends ApplicationContext {
 
 	private Messenger messenger;
 	
-	public MessengerApplicationContext(Factory<Deferred<BaseResponse, TriggerExecutionException>> deferredFactory,
-			Factory<TriggerExecutionContextBuilder> executionContextBuilderFactory,
-			Factory<Optional<String>> idGenerator) {
-		super(deferredFactory, executionContextBuilderFactory, idGenerator);
+	public MessengerApplicationContext(ApplicationModuleInjector injector) {
+		super(injector);
 		
 //		final CloseableHttpClient httpClient = HttpClients.createDefault();
 //		
@@ -45,12 +35,6 @@ public class MessengerApplicationContext extends ApplicationContext {
 //			}
 //		};
 		messenger = Messenger.create(ACCESS_TOKEN, APP_SECRET, VERIFY_TOKEN);
-	}
-	
-	public MessengerApplicationContext() {
-		this(() -> new AsyncDeferredObject<>(), 
-				() -> new TriggerExecutionContextBuilder(),
-				new TimeBasedIdGenerator());
 	}
 
 	public Messenger getMessenger() {
