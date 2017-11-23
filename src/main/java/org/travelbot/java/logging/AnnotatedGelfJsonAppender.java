@@ -329,7 +329,7 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
                 includeThreadContext, includeStackTrace, additionalFields, includeExceptionCause);
     }
 
-    static boolean isFQDN(String canonicalHostName) {
+    private static boolean isFQDN(String canonicalHostName) {
         return canonicalHostName.contains(".") &&
                 !IPV4_PATTERN.matcher(canonicalHostName).matches() &&
                 !IPV6_PATTERN.matcher(canonicalHostName).matches();
