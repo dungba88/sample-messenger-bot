@@ -108,6 +108,28 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
             builder.additionalField("marker", marker.getName());
         }
 
+        buildThreadContext(event, builder);
+
+        buildSource(event, builder);
+
+        buildStackTrace(event, builder);
+        
+        if (event.getMessage() instanceof AnnotatedGelfMessage) {
+            Map<String, Object> annotatedFields = ((AnnotatedGelfMessage)event.getMessage()).getAdditionalFields();
+            builder.additionalFields(annotatedFields);
+        }
+
+        if (!additionalFields.isEmpty()) {
+            builder.additionalFields(additionalFields);
+        }
+        
+        builder.fullMessage(formattedMessage);
+
+        final GelfMessage gelfMessage = builder.build();
+        trySend(gelfMessage);
+    }
+
+    private void buildThreadContext(LogEvent event, final GelfMessageBuilder builder) {
         if (includeThreadContext) {
             for (Map.Entry<String, String> entry : event.getContextData().toMap().entrySet()) {
                 builder.additionalField(entry.getKey(), entry.getValue());
@@ -122,7 +144,9 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
                 }
             }
         }
+    }
 
+    private void buildSource(LogEvent event, final GelfMessageBuilder builder) {
         if (includeSource) {
             final StackTraceElement source = event.getSource();
             if (source != null) {
@@ -130,9 +154,10 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
                 		source.getClassName() + "." + source.getMethodName() + "(" + source.getFileName() + ":" + source.getLineNumber() + ")");
             }
         }
+    }
 
-        @SuppressWarnings("all")
-        final Throwable thrown = event.getThrown();
+    private void buildStackTrace(LogEvent event, GelfMessageBuilder builder) {
+        Throwable thrown = event.getThrown();
         if (includeStackTrace && thrown != null) {
             String stackTrace;
             if (includeExceptionCause) {
@@ -148,19 +173,9 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
             builder.additionalField("exceptionMessage", thrown.getMessage());
             builder.additionalField("exceptionStackTrace", stackTrace);
         }
-        
-        if (event.getMessage() instanceof AnnotatedGelfMessage) {
-            Map<String, Object> annotatedFields = ((AnnotatedGelfMessage)event.getMessage()).getAdditionalFields();
-            builder.additionalFields(annotatedFields);
-        }
+    }
 
-        if (!additionalFields.isEmpty()) {
-            builder.additionalFields(additionalFields);
-        }
-        
-        builder.fullMessage(formattedMessage);
-
-        final GelfMessage gelfMessage = builder.build();
+    private void trySend(GelfMessage gelfMessage) {
         try {
             final boolean sent = client.trySend(gelfMessage);
             if (!sent) {
