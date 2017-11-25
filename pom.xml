@@ -26,10 +26,22 @@
 			<version>1.0.4</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.messenger4j</groupId>
+			<groupId>org.dungba</groupId>
 			<artifactId>messenger4j</artifactId>
-			<version>1.0.0-M2</version>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/messenger4j-1.0.0.jar</systemPath>
 		</dependency>
+		<dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.9.0</version>
+        </dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpasyncclient</artifactId>

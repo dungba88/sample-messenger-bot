@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.messenger4j.webhook.Event;
+import com.github.messenger4j.webhook.event.BaseEvent;
 
 @JsonInclude(Include.NON_NULL)
 public class MessengerEvent extends BaseRequest {
@@ -19,6 +20,17 @@ public class MessengerEvent extends BaseRequest {
     public MessengerEvent(Event originalEvent) {
         this.originalEvent = originalEvent;
         this.createdTime = System.currentTimeMillis();
+    }
+    
+    @JsonIgnore
+    public BaseEvent getBaseEvent() {
+        if (originalEvent.isTextMessageEvent())
+            return originalEvent.asTextMessageEvent();
+        if (originalEvent.isQuickReplyMessageEvent())
+            return originalEvent.asQuickReplyMessageEvent();
+        if (originalEvent.isAttachmentMessageEvent())
+            return originalEvent.asAttachmentMessageEvent();
+        return null;
     }
 
     @JsonIgnore

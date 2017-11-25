@@ -11,15 +11,16 @@ public class IntentRequest extends BaseRequest {
 
     private static final long serialVersionUID = -1342537136855899736L;
 
-    private final @Getter ParseIntentResponse response;
+    private final @Getter ParseIntentResponse intentResponse;
 
     private final @Getter MessengerEvent event;
 
     private final @Getter String senderId;
-    
-    public IntentRequest(final Optional<String> traceId, final ParseIntentResponse response, final MessengerEvent event) {
+
+    public IntentRequest(final Optional<String> traceId, final ParseIntentResponse intentResponse,
+            final MessengerEvent event) {
         super(traceId);
-        this.response = response;
+        this.intentResponse = intentResponse;
         this.event = event;
         this.senderId = event.getOriginalEvent().senderId();
     }

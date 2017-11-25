@@ -2,6 +2,7 @@ package org.travelbot.java.dto.messenger;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Map;
 
 import com.github.messenger4j.webhook.event.BaseEvent;
 
@@ -25,5 +26,9 @@ public class BaseMessageEvent implements Serializable {
 
     public Instant getTimestamp() {
         return event.timestamp();
+    }
+    
+    public Map<String, Object> getExtendedProperties() {
+        return event.extendedProperties();
     }
 }

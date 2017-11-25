@@ -37,16 +37,24 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
         manager.fire("parse_intent", new ParseIntentRequest(traceId, text, event)).fail(ex -> {
             executionContext.fail(ex);
         }).pipeDone(response -> {
-            IntentRequest intentRequest = new IntentRequest(traceId, (ParseIntentResponse) response, event);
+            if (response == null)
+                return manager.fire("no_intent", event);
+
+            ParseIntentResponse intentResponse = (ParseIntentResponse) response;
+
+            // send user text about the intent
+            MessengerUtils.sendText(executionContext, senderId, String.format("Recognize intent '%s' with confidence %d%%",
+                    intentResponse.getIntent(), (int)(intentResponse.getConfidence() * 100)));
 
             // call trigger to handle intent
-            String intent = intentRequest.getResponse().getIntent();
+            IntentRequest intentRequest = new IntentRequest(traceId, intentResponse, event);
+            String intent = intentRequest.getIntentResponse().getIntent();
             return manager.fire("intent." + intent, intentRequest);
         }).done(response -> {
             // finally show typing off
             markTypingOff(executionContext, senderId);
         }).fail(ex -> {
-            executionContext.fail(ex);
+            // executionContext.fail(ex);
             // finally show typing off
             markTypingOff(executionContext, senderId);
         });
