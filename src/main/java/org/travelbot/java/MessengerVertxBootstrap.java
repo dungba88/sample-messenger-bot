@@ -59,13 +59,12 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
 
     public void run() {
         MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
-        
+
         msgApplicationContext.override(IdGenerator.class, new TimeBasedIdGenerator());
 
         configureTriggers();
 
-        VertxOptions options = new VertxOptions().setEventLoopPoolSize(8);
-        configureServer(options, msgApplicationContext.getPort());
+        configureServer(new VertxOptions().setEventLoopPoolSize(8), msgApplicationContext.getPort());
     }
 
     protected Router configureRoutes(Vertx vertx) {
