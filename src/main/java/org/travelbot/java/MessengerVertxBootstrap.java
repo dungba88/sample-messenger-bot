@@ -72,6 +72,7 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
         router.post("/fb_msg_hook")
                 .handler(new MessengerWebhookController(triggerManager, msgApplicationContext.getMessenger())::handle);
         router.route().failureHandler(this::handleFailure);
+
         return router;
     }
 
