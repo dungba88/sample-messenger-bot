@@ -21,65 +21,68 @@ import io.vertx.ext.web.RoutingContext;
 
 public class MessengerWebhookController extends VertxMessageController {
 
-	private Messenger messenger;
-	
-	public MessengerWebhookController(TriggerManager manager, Messenger messenger) {
-		super(manager);
-		this.messenger = messenger;
-	}
+    private Messenger messenger;
 
-	public void handle(RoutingContext rc) {
-		HttpServerResponse response = rc.response();
-		response.putHeader("Content-Type", "application/json");
-		
-		Optional<String> traceId = getTraceId(rc, triggerManager.getApplicationContext());
-		if (traceId != null && traceId.isPresent()) {
-			rc.request().headers().set(CommonConstants.TRACE_ID_HEADER, traceId.get());
-		}
+    public MessengerWebhookController(TriggerManager manager, Messenger messenger) {
+        super(manager);
+        this.messenger = messenger;
+    }
 
-		if (triggerManager.isEventEnabled(TriggerEvent.CUSTOM))
-			triggerManager.notifyEvent(TriggerEvent.CUSTOM, new CustomMessage("start_request", new HttpRequestMessage(rc)));
-		
-		String payload = rc.getBodyAsString();
-		if (payload == null || payload.isEmpty())
-			throw new BadRequestException("payload is null");
-		
-//		String signature = rc.request().getHeader("X-Hub-Signature");
-		
-//		if (signature == null)
-//			throw new UnauthorizedAccessException("signature cannot be null");
-		
-		try {
-			messenger.onReceiveEvents(payload, Optional.empty(), event -> {
-				handleEvent(rc, event, traceId);
-			});
-		} catch (MessengerVerificationException ex) {
-			rc.fail(ex);
-		} catch (JsonSyntaxException ex) {
-			throw new BadRequestException(ex);
-		}
-	}
+    public void handle(RoutingContext rc) {
+        HttpServerResponse response = rc.response();
+        response.putHeader("Content-Type", "application/json");
 
-	private void handleEvent(RoutingContext rc, Event event, Optional<String> traceId) {
-		String eventName = getEventNameForMessengerEvent(event);
-		if (eventName == null) {
-			rc.response().end();
-			return;
-		}
-		
-		MessengerEvent msgEvent = new MessengerEvent(event);
-		msgEvent.attachTraceId(traceId);
-		
-		triggerManager.fire(eventName, msgEvent, triggerResponse -> {
-			onDone(triggerResponse, rc.response(), rc);
-		}, exception -> {
-			onFail(exception, rc.response(), rc);
-		});
-	}
-	
-	private String getEventNameForMessengerEvent(Event event) {
-		if (event.isTextMessageEvent()) return "fb_msg_received";
-		if (event.isQuickReplyMessageEvent()) return "fb_reply_received";
-		return null;
-	}
+        Optional<String> traceId = getTraceId(rc, triggerManager.getApplicationContext());
+        if (traceId != null && traceId.isPresent()) {
+            rc.request().headers().set(CommonConstants.TRACE_ID_HEADER, traceId.get());
+        }
+
+        if (triggerManager.isEventEnabled(TriggerEvent.CUSTOM))
+            triggerManager.notifyEvent(TriggerEvent.CUSTOM,
+                    new CustomMessage("start_request", new HttpRequestMessage(rc)));
+
+        String payload = rc.getBodyAsString();
+        if (payload == null || payload.isEmpty())
+            throw new BadRequestException("payload is null");
+
+        // String signature = rc.request().getHeader("X-Hub-Signature");
+
+        // if (signature == null)
+        // throw new UnauthorizedAccessException("signature cannot be null");
+
+        try {
+            messenger.onReceiveEvents(payload, Optional.empty(), event -> {
+                handleEvent(rc, event, traceId);
+            });
+        } catch (MessengerVerificationException ex) {
+            rc.fail(ex);
+        } catch (JsonSyntaxException ex) {
+            throw new BadRequestException(ex);
+        }
+    }
+
+    private void handleEvent(RoutingContext rc, Event event, Optional<String> traceId) {
+        String eventName = getEventNameForMessengerEvent(event);
+        if (eventName == null) {
+            rc.response().end();
+            return;
+        }
+
+        MessengerEvent msgEvent = new MessengerEvent(event);
+        msgEvent.attachTraceId(traceId);
+
+        triggerManager.fire(eventName, msgEvent, triggerResponse -> {
+            onDone(triggerResponse, rc.response(), rc);
+        }, exception -> {
+            onFail(exception, rc.response(), rc);
+        });
+    }
+
+    private String getEventNameForMessengerEvent(Event event) {
+        if (event.isTextMessageEvent())
+            return "fb_msg_received";
+        if (event.isQuickReplyMessageEvent())
+            return "fb_reply_received";
+        return null;
+    }
 }

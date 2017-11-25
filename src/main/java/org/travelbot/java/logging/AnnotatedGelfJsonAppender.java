@@ -57,17 +57,11 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
 
     private GelfTransport client;
 
-    protected AnnotatedGelfJsonAppender(final String name,
-                           final Layout<? extends Serializable> layout,
-                           final Filter filter,
-                           final boolean ignoreExceptions,
-                           final GelfConfiguration gelfConfiguration,
-                           final String hostName,
-                           final boolean includeSource,
-                           final boolean includeThreadContext,
-                           final boolean includeStackTrace,
-                           final KeyValuePair[] additionalFields,
-                           final boolean includeExceptionCause) {
+    protected AnnotatedGelfJsonAppender(final String name, final Layout<? extends Serializable> layout,
+            final Filter filter, final boolean ignoreExceptions, final GelfConfiguration gelfConfiguration,
+            final String hostName, final boolean includeSource, final boolean includeThreadContext,
+            final boolean includeStackTrace, final KeyValuePair[] additionalFields,
+            final boolean includeExceptionCause) {
         super(name, filter, layout, ignoreExceptions);
         this.gelfConfiguration = gelfConfiguration;
         this.hostName = hostName;
@@ -113,16 +107,16 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
         buildSource(event, builder);
 
         buildStackTrace(event, builder);
-        
+
         if (event.getMessage() instanceof AnnotatedGelfMessage) {
-            Map<String, Object> annotatedFields = ((AnnotatedGelfMessage)event.getMessage()).getAdditionalFields();
+            Map<String, Object> annotatedFields = ((AnnotatedGelfMessage) event.getMessage()).getAdditionalFields();
             builder.additionalFields(annotatedFields);
         }
 
         if (!additionalFields.isEmpty()) {
             builder.additionalFields(additionalFields);
         }
-        
+
         builder.fullMessage(formattedMessage);
 
         final GelfMessage gelfMessage = builder.build();
@@ -150,8 +144,8 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
         if (includeSource) {
             final StackTraceElement source = event.getSource();
             if (source != null) {
-                builder.additionalField("stackTraceSource", 
-                		source.getClassName() + "." + source.getMethodName() + "(" + source.getFileName() + ":" + source.getLineNumber() + ")");
+                builder.additionalField("stackTraceSource", source.getClassName() + "." + source.getMethodName() + "("
+                        + source.getFileName() + ":" + source.getLineNumber() + ")");
             }
         }
     }
@@ -189,10 +183,8 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
     protected String getSimpleStacktraceAsString(final Throwable thrown) {
         final StringBuilder stackTraceBuilder = new StringBuilder();
         for (StackTraceElement stackTraceElement : thrown.getStackTrace()) {
-            new Formatter(stackTraceBuilder).format("%s.%s(%s:%d)%n",
-                    stackTraceElement.getClassName(),
-                    stackTraceElement.getMethodName(),
-                    stackTraceElement.getFileName(),
+            new Formatter(stackTraceBuilder).format("%s.%s(%s:%d)%n", stackTraceElement.getClassName(),
+                    stackTraceElement.getMethodName(), stackTraceElement.getFileName(),
                     stackTraceElement.getLineNumber());
         }
         return stackTraceBuilder.toString();
@@ -218,79 +210,117 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
 
     @Override
     public String toString() {
-        return AnnotatedGelfJsonAppender.class.getSimpleName() + "{"
-                + "name=" + getName()
-                + ",server=" + gelfConfiguration.getRemoteAddress().getHostName()
-                + ",port=" + gelfConfiguration.getRemoteAddress().getPort()
-                + ",protocol=" + gelfConfiguration.getTransport().toString()
-                + ",hostName=" + hostName
-                + ",queueSize=" + gelfConfiguration.getQueueSize()
-                + ",connectTimeout=" + gelfConfiguration.getConnectTimeout()
-                + ",reconnectDelay=" + gelfConfiguration.getReconnectDelay()
-                + ",sendBufferSize=" + gelfConfiguration.getSendBufferSize()
-                + ",tcpNoDelay=" + gelfConfiguration.isTcpNoDelay()
-                + ",tcpKeepAlive=" + gelfConfiguration.isTcpKeepAlive()
-                + ",tlsEnabled=" + gelfConfiguration.isTlsEnabled()
-                + ",tlsCertVerificationEnabled=" + gelfConfiguration.isTlsCertVerificationEnabled()
-                + ",tlsTrustCertChainFilename=" + (gelfConfiguration.getTlsTrustCertChainFile() != null ?
-                gelfConfiguration.getTlsTrustCertChainFile().getPath() : "null")
+        return AnnotatedGelfJsonAppender.class.getSimpleName() + "{" + "name=" + getName() + ",server="
+                + gelfConfiguration.getRemoteAddress().getHostName() + ",port="
+                + gelfConfiguration.getRemoteAddress().getPort() + ",protocol="
+                + gelfConfiguration.getTransport().toString() + ",hostName=" + hostName + ",queueSize="
+                + gelfConfiguration.getQueueSize() + ",connectTimeout=" + gelfConfiguration.getConnectTimeout()
+                + ",reconnectDelay=" + gelfConfiguration.getReconnectDelay() + ",sendBufferSize="
+                + gelfConfiguration.getSendBufferSize() + ",tcpNoDelay=" + gelfConfiguration.isTcpNoDelay()
+                + ",tcpKeepAlive=" + gelfConfiguration.isTcpKeepAlive() + ",tlsEnabled="
+                + gelfConfiguration.isTlsEnabled() + ",tlsCertVerificationEnabled="
+                + gelfConfiguration.isTlsCertVerificationEnabled() + ",tlsTrustCertChainFilename="
+                + (gelfConfiguration.getTlsTrustCertChainFile() != null
+                        ? gelfConfiguration.getTlsTrustCertChainFile().getPath()
+                        : "null")
                 + "}";
     }
 
     /**
-     * Factory method for creating a {@link GelfTransport} provider within the plugin manager.
+     * Factory method for creating a {@link GelfTransport} provider within the
+     * plugin manager.
      *
-     * @param name                             The name of the Appender.
-     * @param filter                           A Filter to determine if the event should be handled by this Appender.
-     * @param layout                           The Layout to use to format the LogEvent defaults to {@code "%m%n"}.
-     * @param ignoreExceptions                 The default is {@code true}, causing exceptions encountered while appending events
-     *                                         to be internally logged and then ignored. When set to {@code false} exceptions will
-     *                                         be propagated to the caller, instead. Must be set to {@code false} when wrapping this
-     *                                         Appender in a {@link org.apache.logging.log4j.core.appender.FailoverAppender}.
-     * @param server                           The server name of the GELF server, defaults to {@code localhost}.
-     * @param port                             The port the GELF server is listening on, defaults to {@code 12201}.
-     * @param hostName                         The host name of the machine generating the logs, defaults to local host name
-     *                                         or {@code localhost} if it couldn't be detected.
-     * @param protocol                         The transport protocol to use, defaults to {@code UDP}.
-     * @param tlsEnabled                       Whether TLS should be enabled, defaults to {@code false}.
-     * @param tlsEnableCertificateVerification Whether TLS certificate chain should be checked, defaults to {@code true}.
-     * @param tlsTrustCertChainFilename        A X.509 certificate chain file in PEM format for certificate verification, defaults to {@code null}
-     * @param queueSize                        The size of the internally used queue, defaults to {@code 512}.
-     * @param connectTimeout                   The connection timeout for TCP connections in milliseconds, defaults to {@code 1000}.
-     * @param reconnectDelay                   The time to wait between reconnects in milliseconds, defaults to {@code 500}.
-     * @param sendBufferSize                   The size of the socket send buffer in bytes, defaults to {@code -1} (deactivate).
-     * @param tcpNoDelay                       Whether Nagle's algorithm should be used for TCP connections, defaults to {@code false}.
-     * @param tcpKeepAlive                     Whether to try keeping alive TCP connections, defaults to {@code false}.
-     * @param includeSource                    Whether the source of the log message should be included, defaults to {@code true}.
-     * @param includeThreadContext             Whether the contents of the {@link org.apache.logging.log4j.ThreadContext} should be included, defaults to {@code true}.
-     * @param includeStackTrace                Whether a full stack trace should be included, defaults to {@code true}.
-     * @param includeExceptionCause            Whether the included stack trace should contain causing exceptions, defaults to {@code false}.
-     * @param additionalFields                 Additional static key=value pairs that will be added to every log message.
+     * @param name
+     *            The name of the Appender.
+     * @param filter
+     *            A Filter to determine if the event should be handled by this
+     *            Appender.
+     * @param layout
+     *            The Layout to use to format the LogEvent defaults to
+     *            {@code "%m%n"}.
+     * @param ignoreExceptions
+     *            The default is {@code true}, causing exceptions encountered while
+     *            appending events to be internally logged and then ignored. When
+     *            set to {@code false} exceptions will be propagated to the caller,
+     *            instead. Must be set to {@code false} when wrapping this Appender
+     *            in a
+     *            {@link org.apache.logging.log4j.core.appender.FailoverAppender}.
+     * @param server
+     *            The server name of the GELF server, defaults to {@code localhost}.
+     * @param port
+     *            The port the GELF server is listening on, defaults to
+     *            {@code 12201}.
+     * @param hostName
+     *            The host name of the machine generating the logs, defaults to
+     *            local host name or {@code localhost} if it couldn't be detected.
+     * @param protocol
+     *            The transport protocol to use, defaults to {@code UDP}.
+     * @param tlsEnabled
+     *            Whether TLS should be enabled, defaults to {@code false}.
+     * @param tlsEnableCertificateVerification
+     *            Whether TLS certificate chain should be checked, defaults to
+     *            {@code true}.
+     * @param tlsTrustCertChainFilename
+     *            A X.509 certificate chain file in PEM format for certificate
+     *            verification, defaults to {@code null}
+     * @param queueSize
+     *            The size of the internally used queue, defaults to {@code 512}.
+     * @param connectTimeout
+     *            The connection timeout for TCP connections in milliseconds,
+     *            defaults to {@code 1000}.
+     * @param reconnectDelay
+     *            The time to wait between reconnects in milliseconds, defaults to
+     *            {@code 500}.
+     * @param sendBufferSize
+     *            The size of the socket send buffer in bytes, defaults to
+     *            {@code -1} (deactivate).
+     * @param tcpNoDelay
+     *            Whether Nagle's algorithm should be used for TCP connections,
+     *            defaults to {@code false}.
+     * @param tcpKeepAlive
+     *            Whether to try keeping alive TCP connections, defaults to
+     *            {@code false}.
+     * @param includeSource
+     *            Whether the source of the log message should be included, defaults
+     *            to {@code true}.
+     * @param includeThreadContext
+     *            Whether the contents of the
+     *            {@link org.apache.logging.log4j.ThreadContext} should be included,
+     *            defaults to {@code true}.
+     * @param includeStackTrace
+     *            Whether a full stack trace should be included, defaults to
+     *            {@code true}.
+     * @param includeExceptionCause
+     *            Whether the included stack trace should contain causing
+     *            exceptions, defaults to {@code false}.
+     * @param additionalFields
+     *            Additional static key=value pairs that will be added to every log
+     *            message.
      * @return a new GELF provider
      */
     @PluginFactory
     public static AnnotatedGelfJsonAppender createGelfAppender(@PluginElement("Filter") Filter filter,
-                                                  @PluginElement("Layout") Layout<? extends Serializable> layout,
-                                                  @PluginElement(value = "AdditionalFields") final KeyValuePair[] additionalFields,
-                                                  @PluginAttribute(value = "name") String name,
-                                                  @PluginAttribute(value = "ignoreExceptions", defaultBoolean = true) Boolean ignoreExceptions,
-                                                  @PluginAttribute(value = "server", defaultString = "localhost") String server,
-                                                  @PluginAttribute(value = "port", defaultInt = 12201) Integer port,
-                                                  @PluginAttribute(value = "protocol", defaultString = "UDP") String protocol,
-                                                  @PluginAttribute(value = "hostName") String hostName,
-                                                  @PluginAttribute(value = "queueSize", defaultInt = 512) Integer queueSize,
-                                                  @PluginAttribute(value = "connectTimeout", defaultInt = 1000) Integer connectTimeout,
-                                                  @PluginAttribute(value = "reconnectDelay", defaultInt = 500) Integer reconnectDelay,
-                                                  @PluginAttribute(value = "sendBufferSize", defaultInt = -1) Integer sendBufferSize,
-                                                  @PluginAttribute(value = "tcpNoDelay", defaultBoolean = false) Boolean tcpNoDelay,
-                                                  @PluginAttribute(value = "tcpKeepAlive", defaultBoolean = false) Boolean tcpKeepAlive,
-                                                  @PluginAttribute(value = "includeSource", defaultBoolean = true) Boolean includeSource,
-                                                  @PluginAttribute(value = "includeThreadContext", defaultBoolean = true) Boolean includeThreadContext,
-                                                  @PluginAttribute(value = "includeStackTrace", defaultBoolean = true) Boolean includeStackTrace,
-                                                  @PluginAttribute(value = "includeExceptionCause", defaultBoolean = true) Boolean includeExceptionCause,
-                                                  @PluginAttribute(value = "tlsEnabled", defaultBoolean = false) Boolean tlsEnabled,
-                                                  @PluginAttribute(value = "tlsEnableCertificateVerification", defaultBoolean = true) Boolean tlsEnableCertificateVerification,
-                                                  @PluginAttribute(value = "tlsTrustCertChainFilename") String tlsTrustCertChainFilename) {
+            @PluginElement("Layout") Layout<? extends Serializable> layout,
+            @PluginElement(value = "AdditionalFields") final KeyValuePair[] additionalFields,
+            @PluginAttribute(value = "name") String name,
+            @PluginAttribute(value = "ignoreExceptions", defaultBoolean = true) Boolean ignoreExceptions,
+            @PluginAttribute(value = "server", defaultString = "localhost") String server,
+            @PluginAttribute(value = "port", defaultInt = 12201) Integer port,
+            @PluginAttribute(value = "protocol", defaultString = "UDP") String protocol,
+            @PluginAttribute(value = "hostName") String hostName,
+            @PluginAttribute(value = "queueSize", defaultInt = 512) Integer queueSize,
+            @PluginAttribute(value = "connectTimeout", defaultInt = 1000) Integer connectTimeout,
+            @PluginAttribute(value = "reconnectDelay", defaultInt = 500) Integer reconnectDelay,
+            @PluginAttribute(value = "sendBufferSize", defaultInt = -1) Integer sendBufferSize,
+            @PluginAttribute(value = "tcpNoDelay", defaultBoolean = false) Boolean tcpNoDelay,
+            @PluginAttribute(value = "tcpKeepAlive", defaultBoolean = false) Boolean tcpKeepAlive,
+            @PluginAttribute(value = "includeSource", defaultBoolean = true) Boolean includeSource,
+            @PluginAttribute(value = "includeThreadContext", defaultBoolean = true) Boolean includeThreadContext,
+            @PluginAttribute(value = "includeStackTrace", defaultBoolean = true) Boolean includeStackTrace,
+            @PluginAttribute(value = "includeExceptionCause", defaultBoolean = true) Boolean includeExceptionCause,
+            @PluginAttribute(value = "tlsEnabled", defaultBoolean = false) Boolean tlsEnabled,
+            @PluginAttribute(value = "tlsEnableCertificateVerification", defaultBoolean = true) Boolean tlsEnableCertificateVerification,
+            @PluginAttribute(value = "tlsTrustCertChainFilename") String tlsTrustCertChainFilename) {
         if (name == null) {
             LOGGER.error("No name provided for ConsoleAppender");
             return null;
@@ -316,14 +346,9 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
 
         final InetSocketAddress serverAddress = new InetSocketAddress(server, port);
         final GelfTransports gelfProtocol = GelfTransports.valueOf(protocol.toUpperCase());
-        final GelfConfiguration gelfConfiguration = new GelfConfiguration(serverAddress)
-                .transport(gelfProtocol)
-                .queueSize(queueSize)
-                .connectTimeout(connectTimeout)
-                .reconnectDelay(reconnectDelay)
-                .sendBufferSize(sendBufferSize)
-                .tcpNoDelay(tcpNoDelay)
-                .tcpKeepAlive(tcpKeepAlive);
+        final GelfConfiguration gelfConfiguration = new GelfConfiguration(serverAddress).transport(gelfProtocol)
+                .queueSize(queueSize).connectTimeout(connectTimeout).reconnectDelay(reconnectDelay)
+                .sendBufferSize(sendBufferSize).tcpNoDelay(tcpNoDelay).tcpKeepAlive(tcpKeepAlive);
 
         if (tlsEnabled) {
             if (gelfProtocol.equals(GelfTransports.TCP)) {
@@ -340,13 +365,12 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
             }
         }
 
-        return new AnnotatedGelfJsonAppender(name, layout, filter, ignoreExceptions, gelfConfiguration, hostName, includeSource,
-                includeThreadContext, includeStackTrace, additionalFields, includeExceptionCause);
+        return new AnnotatedGelfJsonAppender(name, layout, filter, ignoreExceptions, gelfConfiguration, hostName,
+                includeSource, includeThreadContext, includeStackTrace, additionalFields, includeExceptionCause);
     }
 
     private static boolean isFQDN(String canonicalHostName) {
-        return canonicalHostName.contains(".") &&
-                !IPV4_PATTERN.matcher(canonicalHostName).matches() &&
-                !IPV6_PATTERN.matcher(canonicalHostName).matches();
+        return canonicalHostName.contains(".") && !IPV4_PATTERN.matcher(canonicalHostName).matches()
+                && !IPV6_PATTERN.matcher(canonicalHostName).matches();
     }
 }

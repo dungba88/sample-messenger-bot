@@ -9,26 +9,26 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
 
 public class MessengerChallengeController {
-	
-	private Messenger messenger;
 
-	public MessengerChallengeController(Messenger messenger) {
-		this.messenger = messenger;
-	}
+    private Messenger messenger;
 
-	public void handle(RoutingContext rc) {
-		HttpServerResponse response = rc.response();
-		response.putHeader("Content-Type", "text/plain");
+    public MessengerChallengeController(Messenger messenger) {
+        this.messenger = messenger;
+    }
 
-		String mode = rc.request().getParam("hub.mode");
-		String verifyToken = rc.request().getParam("hub.verify_token");
-		String challenge = rc.request().getParam("hub.challenge");
-		
-		try {
-			messenger.verifyWebhook(mode, verifyToken);
-			response.end(challenge);
-		} catch (MessengerVerificationException | IllegalArgumentException e) {
-			rc.fail(new UnauthorizedAccessException(e));
-		}
-	}
+    public void handle(RoutingContext rc) {
+        HttpServerResponse response = rc.response();
+        response.putHeader("Content-Type", "text/plain");
+
+        String mode = rc.request().getParam("hub.mode");
+        String verifyToken = rc.request().getParam("hub.verify_token");
+        String challenge = rc.request().getParam("hub.challenge");
+
+        try {
+            messenger.verifyWebhook(mode, verifyToken);
+            response.end(challenge);
+        } catch (MessengerVerificationException | IllegalArgumentException e) {
+            rc.fail(new UnauthorizedAccessException(e));
+        }
+    }
 }

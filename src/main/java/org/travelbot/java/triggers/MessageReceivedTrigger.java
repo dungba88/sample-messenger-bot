@@ -17,33 +17,36 @@ import com.github.messenger4j.send.senderaction.SenderAction;
 
 public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, MessengerResponse> {
 
-	@Override
-	public void execute(TriggerExecutionContext executionContext) throws TriggerExecutionException {
-		executionContext.finish(null);
-		MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext.getApplicationContext();
-		MessengerEvent event = (MessengerEvent) executionContext.getRequest();
-		
-		final String recipientId = event.getOriginalEvent().senderId();
-		final String text = event.getOriginalEvent().asTextMessageEvent().text();
-		
-		long start = System.currentTimeMillis();
-		try {
-			sendAction(applicationContext, recipientId, SenderAction.MARK_SEEN);
-			sendAction(applicationContext, recipientId, SenderAction.TYPING_ON);
-			sendText(applicationContext, recipientId, text);
-		} catch (MessengerApiException | MessengerIOException e) {
-			throw new TriggerExecutionException(e);
-		}
-		System.out.println("Inner :" + (System.currentTimeMillis() - start) + "ms");
-	}
-	
-	private void sendAction(MessengerApplicationContext applicationContext, String recipientId, SenderAction senderAction) throws MessengerApiException, MessengerIOException {
-		final SenderActionPayload payload = SenderActionPayload.create(recipientId, senderAction);
-		applicationContext.getMessenger().send(payload);
-	}
+    @Override
+    public void execute(TriggerExecutionContext executionContext) throws TriggerExecutionException {
+        executionContext.finish(null);
+        MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext
+                .getApplicationContext();
+        MessengerEvent event = (MessengerEvent) executionContext.getRequest();
 
-	private void sendText(MessengerApplicationContext applicationContext, String recipientId, String text) throws MessengerApiException, MessengerIOException {
-		final Payload payload = MessagePayload.create(recipientId, TextMessage.create(text));
-		applicationContext.getMessenger().send(payload);
-	}
+        final String recipientId = event.getOriginalEvent().senderId();
+        final String text = event.getOriginalEvent().asTextMessageEvent().text();
+
+        long start = System.currentTimeMillis();
+        try {
+            sendAction(applicationContext, recipientId, SenderAction.MARK_SEEN);
+            sendAction(applicationContext, recipientId, SenderAction.TYPING_ON);
+            sendText(applicationContext, recipientId, text);
+        } catch (MessengerApiException | MessengerIOException e) {
+            throw new TriggerExecutionException(e);
+        }
+        System.out.println("Inner :" + (System.currentTimeMillis() - start) + "ms");
+    }
+
+    private void sendAction(MessengerApplicationContext applicationContext, String recipientId,
+            SenderAction senderAction) throws MessengerApiException, MessengerIOException {
+        final SenderActionPayload payload = SenderActionPayload.create(recipientId, senderAction);
+        applicationContext.getMessenger().send(payload);
+    }
+
+    private void sendText(MessengerApplicationContext applicationContext, String recipientId, String text)
+            throws MessengerApiException, MessengerIOException {
+        final Payload payload = MessagePayload.create(recipientId, TextMessage.create(text));
+        applicationContext.getMessenger().send(payload);
+    }
 }

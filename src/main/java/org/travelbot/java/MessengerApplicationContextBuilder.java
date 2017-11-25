@@ -5,8 +5,8 @@ import org.joo.scorpius.support.builders.ApplicationContextBuilder;
 
 public class MessengerApplicationContextBuilder extends ApplicationContextBuilder {
 
-	@Override
-	public ApplicationContext build() {
-		return new MessengerApplicationContext(getInjector());
-	}
+    @Override
+    public ApplicationContext build() {
+        return new MessengerApplicationContext(getInjector());
+    }
 }

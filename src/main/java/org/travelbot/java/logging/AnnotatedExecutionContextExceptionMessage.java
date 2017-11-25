@@ -7,42 +7,42 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class AnnotatedExecutionContextExceptionMessage extends AnnotatedGelfMessage {
 
-	private static final long serialVersionUID = 3900326418162752886L;
-	
-	private static final ObjectMapper mapper = new ObjectMapper();
+    private static final long serialVersionUID = 3900326418162752886L;
 
-	private ExecutionContextExceptionMessage msg;
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-	public AnnotatedExecutionContextExceptionMessage(ExecutionContextExceptionMessage msg) {
-		super();
-		this.msg = msg;
-		putField("executionContextId", msg.getId());
-		putField("traceId", msg.getRequest().getTraceId());
-		putField("eventName", msg.getEventName());
-		try {
-			putField("payload", mapper.writeValueAsString(msg.getRequest()));
-		} catch (JsonProcessingException e) {
-			putField("payloadEncodeException", e);
-		}
-	}
+    private ExecutionContextExceptionMessage msg;
 
-	@Override
-	public String getFormattedMessage() {
-		return "Exception occurred when handling event " + msg.getEventName() + " with id " + msg.getId();
-	}
+    public AnnotatedExecutionContextExceptionMessage(ExecutionContextExceptionMessage msg) {
+        super();
+        this.msg = msg;
+        putField("executionContextId", msg.getId());
+        putField("traceId", msg.getRequest().getTraceId());
+        putField("eventName", msg.getEventName());
+        try {
+            putField("payload", mapper.writeValueAsString(msg.getRequest()));
+        } catch (JsonProcessingException e) {
+            putField("payloadEncodeException", e);
+        }
+    }
 
-	@Override
-	public String getFormat() {
-		return "";
-	}
+    @Override
+    public String getFormattedMessage() {
+        return "Exception occurred when handling event " + msg.getEventName() + " with id " + msg.getId();
+    }
 
-	@Override
-	public Object[] getParameters() {
-		return null;
-	}
+    @Override
+    public String getFormat() {
+        return "";
+    }
 
-	@Override
-	public Throwable getThrowable() {
-		return msg.getCause();
-	}
+    @Override
+    public Object[] getParameters() {
+        return null;
+    }
+
+    @Override
+    public Throwable getThrowable() {
+        return msg.getCause();
+    }
 }
