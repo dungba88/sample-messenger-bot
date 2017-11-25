@@ -1,5 +1,7 @@
 package org.travelbot.java.triggers;
 
+import java.util.Optional;
+
 import org.joo.scorpius.support.exception.TriggerExecutionException;
 import org.joo.scorpius.trigger.TriggerExecutionContext;
 import org.joo.scorpius.trigger.TriggerManager;
@@ -29,11 +31,13 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
         MessengerUtils.sendAction(executionContext, senderId, SenderAction.MARK_SEEN);
         MessengerUtils.sendAction(executionContext, senderId, SenderAction.TYPING_ON);
 
+        Optional<String> traceId = event.fetchRawTraceId();
+
         // call trigger to parse intent
-        manager.fire("parse_intent", new ParseIntentRequest(text, event)).fail(ex -> {
+        manager.fire("parse_intent", new ParseIntentRequest(traceId, text, event)).fail(ex -> {
             executionContext.fail(ex);
         }).pipeDone(response -> {
-            IntentRequest intentRequest = new IntentRequest((ParseIntentResponse) response, event);
+            IntentRequest intentRequest = new IntentRequest(traceId, (ParseIntentResponse) response, event);
 
             // call trigger to handle intent
             String intent = intentRequest.getResponse().getIntent();

@@ -1,5 +1,7 @@
 package org.travelbot.java.dto;
 
+import java.util.Optional;
+
 import org.joo.scorpius.support.BaseRequest;
 import org.travelbot.java.dto.messenger.MessengerEvent;
 
@@ -15,7 +17,8 @@ public class IntentRequest extends BaseRequest {
 
     private final @Getter String senderId;
     
-    public IntentRequest(final ParseIntentResponse response, final MessengerEvent event) {
+    public IntentRequest(final Optional<String> traceId, final ParseIntentResponse response, final MessengerEvent event) {
+        super(traceId);
         this.response = response;
         this.event = event;
         this.senderId = event.getOriginalEvent().senderId();

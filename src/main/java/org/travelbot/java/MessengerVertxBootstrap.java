@@ -20,6 +20,7 @@ import org.travelbot.java.logging.AnnotatedExecutionContextExceptionMessage;
 import org.travelbot.java.logging.AnnotatedExecutionContextStartMessage;
 import org.travelbot.java.logging.AnnotatedGelfJsonAppender;
 import org.travelbot.java.logging.HttpRequestMessage;
+import org.travelbot.java.triggers.GreetingIntentTrigger;
 import org.travelbot.java.triggers.MessageReceivedTrigger;
 import org.travelbot.java.triggers.ParseIntentTrigger;
 
@@ -70,6 +71,7 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
 
         triggerManager.registerTrigger("fb_msg_received").withAction(MessageReceivedTrigger::new);
         triggerManager.registerTrigger("parse_intent").withAction(ParseIntentTrigger::new);
+        triggerManager.registerTrigger("intent.greeting").withAction(GreetingIntentTrigger::new);
 
         registerEventHandlers();
     }
