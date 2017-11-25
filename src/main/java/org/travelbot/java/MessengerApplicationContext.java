@@ -4,6 +4,10 @@ import org.joo.scorpius.ApplicationContext;
 import org.joo.scorpius.support.di.ApplicationModuleInjector;
 
 import com.github.messenger4j.Messenger;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
+import lombok.Getter;
 
 public class MessengerApplicationContext extends ApplicationContext {
 
@@ -15,31 +19,14 @@ public class MessengerApplicationContext extends ApplicationContext {
 
     public final static String PORT = System.getenv("PORT");
 
-    private Messenger messenger;
+    private @Getter Messenger messenger;
+    
+    private @Getter Config config;
 
     public MessengerApplicationContext(ApplicationModuleInjector injector) {
         super(injector);
-
-        // final CloseableHttpClient httpClient = HttpClients.createDefault();
-        //
-        // final MessengerHttpClient customClient = new MessengerHttpClient() {
-        //
-        // @Override
-        // public HttpResponse execute(HttpMethod httpMethod, String url, String
-        // jsonBody) throws IOException {
-        // HttpPost request = new HttpPost(url);
-        // HttpEntity entity = new ByteArrayEntity(jsonBody.getBytes());
-        // request.setEntity(entity);
-        // CloseableHttpResponse response = httpClient.execute(request);
-        // String body = EntityUtils.toString(response.getEntity());
-        // return new HttpResponse(response.getStatusLine().getStatusCode(), body);
-        // }
-        // };
         messenger = Messenger.create(ACCESS_TOKEN, APP_SECRET, VERIFY_TOKEN);
-    }
-
-    public Messenger getMessenger() {
-        return messenger;
+        config = ConfigFactory.load();
     }
 
     public int getPort() {
