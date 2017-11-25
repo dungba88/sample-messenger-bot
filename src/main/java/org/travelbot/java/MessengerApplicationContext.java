@@ -27,6 +27,7 @@ public class MessengerApplicationContext extends ApplicationContext {
         super(injector);
         messenger = Messenger.create(ACCESS_TOKEN, APP_SECRET, VERIFY_TOKEN);
         config = ConfigFactory.load();
+        config.checkValid(ConfigFactory.defaultReference());
     }
 
     public int getPort() {

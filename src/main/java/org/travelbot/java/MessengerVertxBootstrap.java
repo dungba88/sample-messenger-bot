@@ -8,6 +8,7 @@ import org.apache.logging.log4j.core.config.plugins.util.PluginManager;
 import org.joo.scorpius.support.BaseRequest;
 import org.joo.scorpius.support.message.CustomMessage;
 import org.joo.scorpius.support.message.ExecutionContextExceptionMessage;
+import org.joo.scorpius.support.message.ExecutionContextFinishMessage;
 import org.joo.scorpius.support.message.ExecutionContextStartMessage;
 import org.joo.scorpius.support.vertx.VertxBootstrap;
 import org.joo.scorpius.trigger.TriggerEvent;
@@ -19,6 +20,7 @@ import org.travelbot.java.dto.messenger.MessengerEvent;
 import org.travelbot.java.exceptions.BadRequestException;
 import org.travelbot.java.exceptions.UnauthorizedAccessException;
 import org.travelbot.java.logging.AnnotatedExecutionContextExceptionMessage;
+import org.travelbot.java.logging.AnnotatedExecutionContextFinishMessage;
 import org.travelbot.java.logging.AnnotatedExecutionContextStartMessage;
 import org.travelbot.java.logging.AnnotatedGelfJsonAppender;
 import org.travelbot.java.logging.HttpRequestMessage;
@@ -88,37 +90,72 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
     }
 
     private void registerEventHandlers() {
+        MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
+
+        if (msgApplicationContext.getConfig().getBoolean("log.trigger.exception"))
+            registerTriggerExceptionHandler(msgApplicationContext);
+
+        if (msgApplicationContext.getConfig().getBoolean("log.trigger.start"))
+            registerTriggerStartHandler();
+
+        if (msgApplicationContext.getConfig().getBoolean("log.trigger.finish"))
+            registerTriggerFinishHandler();
+
+        if (msgApplicationContext.getConfig().getBoolean("log.trigger.custom"))
+            registerTriggerCustomHandler();
+    }
+
+    private void registerTriggerExceptionHandler(MessengerApplicationContext msgApplicationContext) {
+        final boolean sendExceptionToUser = msgApplicationContext.getConfig().getBoolean("log.trigger.send_exception");
         triggerManager.addEventHandler(TriggerEvent.EXCEPTION, (event, msg) -> {
             ExecutionContextExceptionMessage exceptionMessage = (ExecutionContextExceptionMessage) msg;
             if (logger.isErrorEnabled())
                 logger.error(new AnnotatedExecutionContextExceptionMessage(exceptionMessage));
-            
-            BaseRequest request = exceptionMessage.getRequest();
-            if (request instanceof MessengerEvent) {
-                MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
-                String recipientId = ((MessengerEvent)request).getBaseEvent().senderId();
-                final Payload payload = MessagePayload.create(recipientId, TextMessage.create(exceptionMessage.getCause().getMessage()));
-                try {
-                    msgApplicationContext.getMessenger().send(payload);
-                } catch (MessengerApiException | MessengerIOException e) {
-                }
-            }
-        });
 
+            if (sendExceptionToUser)
+                sendExceptionToUser(msgApplicationContext, exceptionMessage);
+        });
+    }
+
+    private void sendExceptionToUser(MessengerApplicationContext msgApplicationContext,
+            ExecutionContextExceptionMessage exceptionMessage) {
+        BaseRequest request = exceptionMessage.getRequest();
+        if (!(request instanceof MessengerEvent))
+            return;
+        String recipientId = ((MessengerEvent) request).getBaseEvent().senderId();
+        final Payload payload = MessagePayload.create(recipientId,
+                TextMessage.create(exceptionMessage.getCause().getMessage()));
+        try {
+            msgApplicationContext.getMessenger().send(payload);
+        } catch (MessengerApiException | MessengerIOException e) {
+        }
+    }
+
+    private void registerTriggerStartHandler() {
         triggerManager.addEventHandler(TriggerEvent.START, (event, msg) -> {
             ExecutionContextStartMessage startMessage = (ExecutionContextStartMessage) msg;
             if (logger.isDebugEnabled())
                 logger.debug(new AnnotatedExecutionContextStartMessage(startMessage));
         });
+    }
 
+    private void registerTriggerFinishHandler() {
+        triggerManager.addEventHandler(TriggerEvent.FINISH, (event, msg) -> {
+            ExecutionContextFinishMessage finishMessage = (ExecutionContextFinishMessage) msg;
+            if (logger.isDebugEnabled())
+                logger.debug(new AnnotatedExecutionContextFinishMessage(finishMessage));
+        });
+    }
+
+    private void registerTriggerCustomHandler() {
         triggerManager.addEventHandler(TriggerEvent.CUSTOM, (event, msg) -> {
             CustomMessage customMsg = (CustomMessage) msg;
-            if (customMsg.getCustomObject() instanceof HttpRequestMessage) {
-                HttpRequestMessage httpMsg = (HttpRequestMessage) customMsg.getCustomObject();
-                httpMsg.putField("eventName", customMsg.getName());
-                if (logger.isDebugEnabled())
-                    logger.debug(httpMsg);
-            }
+            if (!(customMsg.getCustomObject() instanceof HttpRequestMessage))
+                return;
+            HttpRequestMessage httpMsg = (HttpRequestMessage) customMsg.getCustomObject();
+            httpMsg.putField("eventName", customMsg.getName());
+            if (logger.isDebugEnabled())
+                logger.debug(httpMsg);
         });
     }
 
