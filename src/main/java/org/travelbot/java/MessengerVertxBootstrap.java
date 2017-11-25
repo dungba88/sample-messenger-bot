@@ -7,6 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.plugins.util.PluginManager;
 import org.joo.scorpius.support.BaseRequest;
+import org.joo.scorpius.support.builders.contracts.IdGenerator;
+import org.joo.scorpius.support.builders.id.TimeBasedIdGenerator;
 import org.joo.scorpius.support.message.CustomMessage;
 import org.joo.scorpius.support.message.ExecutionContextExceptionMessage;
 import org.joo.scorpius.support.message.ExecutionContextFinishMessage;
@@ -57,6 +59,8 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
 
     public void run() {
         MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
+        
+        msgApplicationContext.override(IdGenerator.class, new TimeBasedIdGenerator());
 
         configureTriggers();
 
