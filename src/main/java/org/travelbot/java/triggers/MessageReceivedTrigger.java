@@ -2,17 +2,15 @@ package org.travelbot.java.triggers;
 
 import org.joo.scorpius.support.exception.TriggerExecutionException;
 import org.joo.scorpius.trigger.TriggerExecutionContext;
+import org.joo.scorpius.trigger.TriggerManager;
 import org.joo.scorpius.trigger.impl.AbstractTrigger;
-import org.travelbot.java.MessengerApplicationContext;
+import org.travelbot.java.dto.IntentRequest;
+import org.travelbot.java.dto.ParseIntentRequest;
+import org.travelbot.java.dto.ParseIntentResponse;
 import org.travelbot.java.dto.messenger.MessengerEvent;
 import org.travelbot.java.dto.messenger.MessengerResponse;
+import org.travelbot.java.utils.MessengerUtils;
 
-import com.github.messenger4j.exception.MessengerApiException;
-import com.github.messenger4j.exception.MessengerIOException;
-import com.github.messenger4j.send.MessagePayload;
-import com.github.messenger4j.send.Payload;
-import com.github.messenger4j.send.SenderActionPayload;
-import com.github.messenger4j.send.message.TextMessage;
 import com.github.messenger4j.send.senderaction.SenderAction;
 
 public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, MessengerResponse> {
@@ -20,33 +18,37 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
     @Override
     public void execute(TriggerExecutionContext executionContext) throws TriggerExecutionException {
         executionContext.finish(null);
-        MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext
-                .getApplicationContext();
-        MessengerEvent event = (MessengerEvent) executionContext.getRequest();
 
-        final String recipientId = event.getOriginalEvent().senderId();
+        final TriggerManager manager = executionContext.getTriggerManager();
+        final MessengerEvent event = (MessengerEvent) executionContext.getRequest();
+
+        final String senderId = event.getOriginalEvent().senderId();
         final String text = event.getOriginalEvent().asTextMessageEvent().text();
 
-        long start = System.currentTimeMillis();
-        try {
-            sendAction(applicationContext, recipientId, SenderAction.MARK_SEEN);
-            sendAction(applicationContext, recipientId, SenderAction.TYPING_ON);
-            sendText(applicationContext, recipientId, text);
-        } catch (MessengerApiException | MessengerIOException e) {
-            throw new TriggerExecutionException(e);
-        }
-        System.out.println("Inner :" + (System.currentTimeMillis() - start) + "ms");
+        // always mark seen and show typing on
+        MessengerUtils.sendAction(executionContext, senderId, SenderAction.MARK_SEEN);
+        MessengerUtils.sendAction(executionContext, senderId, SenderAction.TYPING_ON);
+
+        // call trigger to parse intent
+        manager.fire("parse_intent", new ParseIntentRequest(text, event)).fail(ex -> {
+            executionContext.fail(ex);
+        }).pipeDone(response -> {
+            IntentRequest intentRequest = new IntentRequest((ParseIntentResponse) response, event);
+
+            // call trigger to handle intent
+            String intent = intentRequest.getResponse().getIntent();
+            return manager.fire("intent." + intent, intentRequest);
+        }).done(response -> {
+            // finally show typing off
+            markTypingOff(executionContext, senderId);
+        }).fail(ex -> {
+            executionContext.fail(ex);
+            // finally show typing off
+            markTypingOff(executionContext, senderId);
+        });
     }
 
-    private void sendAction(MessengerApplicationContext applicationContext, String recipientId,
-            SenderAction senderAction) throws MessengerApiException, MessengerIOException {
-        final SenderActionPayload payload = SenderActionPayload.create(recipientId, senderAction);
-        applicationContext.getMessenger().send(payload);
-    }
-
-    private void sendText(MessengerApplicationContext applicationContext, String recipientId, String text)
-            throws MessengerApiException, MessengerIOException {
-        final Payload payload = MessagePayload.create(recipientId, TextMessage.create(text));
-        applicationContext.getMessenger().send(payload);
+    private void markTypingOff(TriggerExecutionContext executionContext, String senderId) {
+        MessengerUtils.sendAction(executionContext, senderId, SenderAction.TYPING_OFF);
     }
 }

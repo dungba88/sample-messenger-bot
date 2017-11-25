@@ -14,11 +14,14 @@ import org.joo.scorpius.trigger.handle.disruptor.DisruptorHandlingStrategy;
 import org.travelbot.java.controllers.MessengerChallengeController;
 import org.travelbot.java.controllers.MessengerWebhookController;
 import org.travelbot.java.dto.ErrorResponse;
+import org.travelbot.java.exceptions.BadRequestException;
+import org.travelbot.java.exceptions.UnauthorizedAccessException;
 import org.travelbot.java.logging.AnnotatedExecutionContextExceptionMessage;
 import org.travelbot.java.logging.AnnotatedExecutionContextStartMessage;
 import org.travelbot.java.logging.AnnotatedGelfJsonAppender;
 import org.travelbot.java.logging.HttpRequestMessage;
 import org.travelbot.java.triggers.MessageReceivedTrigger;
+import org.travelbot.java.triggers.ParseIntentTrigger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,8 +67,14 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
     private void configureTriggers() {
         triggerManager.setHandlingStrategy(new DisruptorHandlingStrategy(1024, Executors.newFixedThreadPool(3),
                 ProducerType.MULTI, new YieldingWaitStrategy()));
-        triggerManager.registerTrigger("fb_msg_received").withAction(MessageReceivedTrigger::new);
 
+        triggerManager.registerTrigger("fb_msg_received").withAction(MessageReceivedTrigger::new);
+        triggerManager.registerTrigger("parse_intent").withAction(ParseIntentTrigger::new);
+
+        registerEventHandlers();
+    }
+
+    private void registerEventHandlers() {
         triggerManager.addEventHandler(TriggerEvent.EXCEPTION, (event, msg) -> {
             ExecutionContextExceptionMessage exceptionMessage = (ExecutionContextExceptionMessage) msg;
             if (logger.isErrorEnabled())

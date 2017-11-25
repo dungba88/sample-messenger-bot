@@ -1,6 +1,6 @@
 package org.travelbot.java.controllers;
 
-import org.travelbot.java.UnauthorizedAccessException;
+import org.travelbot.java.exceptions.UnauthorizedAccessException;
 
 import com.github.messenger4j.Messenger;
 import com.github.messenger4j.exception.MessengerVerificationException;
