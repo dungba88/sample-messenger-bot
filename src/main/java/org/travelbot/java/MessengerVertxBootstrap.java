@@ -1,5 +1,6 @@
 package org.travelbot.java;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,6 +12,8 @@ import org.joo.scorpius.support.message.ExecutionContextExceptionMessage;
 import org.joo.scorpius.support.message.ExecutionContextFinishMessage;
 import org.joo.scorpius.support.message.ExecutionContextStartMessage;
 import org.joo.scorpius.support.vertx.VertxBootstrap;
+import org.joo.scorpius.trigger.Trigger;
+import org.joo.scorpius.trigger.TriggerConfig;
 import org.joo.scorpius.trigger.TriggerEvent;
 import org.joo.scorpius.trigger.handle.disruptor.DisruptorHandlingStrategy;
 import org.travelbot.java.controllers.MessengerChallengeController;
@@ -24,10 +27,6 @@ import org.travelbot.java.logging.AnnotatedExecutionContextFinishMessage;
 import org.travelbot.java.logging.AnnotatedExecutionContextStartMessage;
 import org.travelbot.java.logging.AnnotatedGelfJsonAppender;
 import org.travelbot.java.logging.HttpRequestMessage;
-import org.travelbot.java.triggers.MessageReceivedTrigger;
-import org.travelbot.java.triggers.NoIntentTrigger;
-import org.travelbot.java.triggers.ParseIntentTrigger;
-import org.travelbot.java.triggers.SimpleReplyIntentTrigger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,11 +37,13 @@ import com.github.messenger4j.send.Payload;
 import com.github.messenger4j.send.message.TextMessage;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.typesafe.config.Config;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import lombok.Getter;
 
 public class MessengerVertxBootstrap extends VertxBootstrap {
 
@@ -80,14 +81,41 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
         triggerManager.setHandlingStrategy(new DisruptorHandlingStrategy(1024, Executors.newFixedThreadPool(3),
                 ProducerType.MULTI, new YieldingWaitStrategy()));
 
-        triggerManager.registerTrigger("fb_msg_received").withAction(MessageReceivedTrigger::new);
-        triggerManager.registerTrigger("parse_intent").withAction(ParseIntentTrigger::new);
-        triggerManager.registerTrigger("intent.greeting").withAction(SimpleReplyIntentTrigger::new);
-        triggerManager.registerTrigger("intent.inquire_name").withAction(SimpleReplyIntentTrigger::new);
-        triggerManager.registerTrigger("intent.inquire_personal").withAction(SimpleReplyIntentTrigger::new);
-        triggerManager.registerTrigger("no_intent").withAction(NoIntentTrigger::new);
+        MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
+        List<? extends Config> configList = msgApplicationContext.getConfig().getConfigList("triggers");
+
+        configList.stream().map(this::parseTriggerConfig).filter(cfg -> cfg != null).forEach(cfg -> {
+            triggerManager.registerTrigger(cfg.getEvent(), cfg.getConfig());
+        });
 
         registerEventHandlers();
+    }
+
+    private TriggerConfigWrapper parseTriggerConfig(Config cfg) {
+        String condition = cfg.hasPath("condition") ? cfg.getString("condition") : null;
+        String action = cfg.getString("action");
+
+        TriggerConfig config;
+        try {
+            config = parseTriggerConfig(condition, action);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            if (logger.isErrorEnabled())
+                logger.error("Exception occurred while trying to load triggers", e);
+            return null;
+        }
+
+        return new TriggerConfigWrapper(cfg.getString("event"), config);
+    }
+
+    @SuppressWarnings("unchecked")
+    private TriggerConfig parseTriggerConfig(String condition, String action)
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        TriggerConfig config = new TriggerConfig();
+        if (condition != null)
+            config.withCondition(condition);
+        Class<Trigger<?, ?>> clazz = (Class<Trigger<?, ?>>) Class.forName(action);
+        config.withAction(clazz.newInstance());
+        return config;
     }
 
     private void registerEventHandlers() {
@@ -187,5 +215,17 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
             logger.error(e);
         }
         return null;
+    }
+}
+
+class TriggerConfigWrapper {
+
+    private final @Getter String event;
+
+    private final @Getter TriggerConfig config;
+
+    public TriggerConfigWrapper(final String event, final TriggerConfig config) {
+        this.event = event;
+        this.config = config;
     }
 }
