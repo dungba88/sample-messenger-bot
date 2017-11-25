@@ -16,10 +16,10 @@ import org.joo.scorpius.trigger.TriggerEvent;
 import org.joo.scorpius.trigger.TriggerManager;
 import org.joo.scorpius.trigger.handle.disruptor.DisruptorHandlingStrategy;
 import org.travelbot.java.dto.messenger.MessengerEvent;
-import org.travelbot.java.logging.AnnotatedExecutionContextExceptionMessage;
-import org.travelbot.java.logging.AnnotatedExecutionContextFinishMessage;
-import org.travelbot.java.logging.AnnotatedExecutionContextStartMessage;
-import org.travelbot.java.logging.HttpRequestMessage;
+import org.travelbot.java.support.logging.AnnotatedExecutionContextExceptionMessage;
+import org.travelbot.java.support.logging.AnnotatedExecutionContextFinishMessage;
+import org.travelbot.java.support.logging.AnnotatedExecutionContextStartMessage;
+import org.travelbot.java.support.logging.HttpRequestMessage;
 
 import com.github.messenger4j.exception.MessengerApiException;
 import com.github.messenger4j.exception.MessengerIOException;

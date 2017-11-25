@@ -1,4 +1,4 @@
-package org.travelbot.java.exceptions;
+package org.travelbot.java.support.exceptions;
 
 public class BadRequestException extends RuntimeException {
 

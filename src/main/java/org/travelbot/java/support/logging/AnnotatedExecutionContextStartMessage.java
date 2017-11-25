@@ -1,34 +1,34 @@
-package org.travelbot.java.logging;
+package org.travelbot.java.support.logging;
 
-import org.joo.scorpius.support.message.ExecutionContextFinishMessage;
+import org.joo.scorpius.support.message.ExecutionContextStartMessage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class AnnotatedExecutionContextFinishMessage extends AnnotatedGelfMessage {
+public class AnnotatedExecutionContextStartMessage extends AnnotatedGelfMessage {
 
     private static final long serialVersionUID = 3900326418162752886L;
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    private ExecutionContextFinishMessage msg;
+    private ExecutionContextStartMessage msg;
 
-    public AnnotatedExecutionContextFinishMessage(ExecutionContextFinishMessage msg) {
+    public AnnotatedExecutionContextStartMessage(ExecutionContextStartMessage msg) {
         super();
         this.msg = msg;
         putField("executionContextId", msg.getId());
         putField("traceId", msg.getRequest().getTraceId());
         putField("eventName", msg.getEventName());
         try {
-            putField("response", mapper.writeValueAsString(msg.getResponse()));
+            putField("payload", mapper.writeValueAsString(msg.getRequest()));
         } catch (JsonProcessingException e) {
-            putField("responseEncodeException", e);
+            putField("payloadEncodeException", e);
         }
     }
 
     @Override
     public String getFormattedMessage() {
-        return "Finish handling event " + msg.getEventName() + " with id " + msg.getId();
+        return "Start handling event " + msg.getEventName() + " with id " + msg.getId();
     }
 
     @Override

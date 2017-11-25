@@ -7,7 +7,7 @@ import org.joo.scorpius.trigger.impl.AbstractTrigger;
 import org.travelbot.java.MessengerApplicationContext;
 import org.travelbot.java.dto.IntentRequest;
 import org.travelbot.java.dto.IntentResponse;
-import org.travelbot.java.utils.MessengerUtils;
+import org.travelbot.java.support.utils.MessengerUtils;
 
 public class SimpleReplyIntentTrigger extends AbstractTrigger<IntentRequest, BaseResponse> {
 

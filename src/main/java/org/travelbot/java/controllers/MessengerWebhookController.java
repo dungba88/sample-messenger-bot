@@ -8,8 +8,8 @@ import org.joo.scorpius.support.vertx.VertxMessageController;
 import org.joo.scorpius.trigger.TriggerEvent;
 import org.joo.scorpius.trigger.TriggerManager;
 import org.travelbot.java.dto.messenger.MessengerEvent;
-import org.travelbot.java.exceptions.BadRequestException;
-import org.travelbot.java.logging.HttpRequestMessage;
+import org.travelbot.java.support.exceptions.BadRequestException;
+import org.travelbot.java.support.logging.HttpRequestMessage;
 
 import com.github.messenger4j.Messenger;
 import com.github.messenger4j.exception.MessengerVerificationException;

@@ -1,4 +1,4 @@
-package org.travelbot.java.logging;
+package org.travelbot.java.support.logging;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;

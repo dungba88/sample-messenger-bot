@@ -1,4 +1,4 @@
-package org.travelbot.java.logging;
+package org.travelbot.java.support.logging;
 
 import org.joo.scorpius.support.message.ExecutionContextExceptionMessage;
 

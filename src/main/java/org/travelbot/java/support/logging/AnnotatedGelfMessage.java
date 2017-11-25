@@ -1,4 +1,4 @@
-package org.travelbot.java.logging;
+package org.travelbot.java.support.logging;
 
 import java.util.HashMap;
 import java.util.Map;

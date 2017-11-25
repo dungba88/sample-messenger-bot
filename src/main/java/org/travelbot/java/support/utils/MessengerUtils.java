@@ -1,4 +1,4 @@
-package org.travelbot.java.utils;
+package org.travelbot.java.support.utils;
 
 import org.joo.scorpius.support.exception.TriggerExecutionException;
 import org.joo.scorpius.trigger.TriggerExecutionContext;

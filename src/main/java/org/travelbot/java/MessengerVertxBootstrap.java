@@ -9,9 +9,9 @@ import org.joo.scorpius.support.vertx.VertxBootstrap;
 import org.travelbot.java.controllers.MessengerChallengeController;
 import org.travelbot.java.controllers.MessengerWebhookController;
 import org.travelbot.java.dto.ErrorResponse;
-import org.travelbot.java.exceptions.BadRequestException;
-import org.travelbot.java.exceptions.UnauthorizedAccessException;
-import org.travelbot.java.logging.AnnotatedGelfJsonAppender;
+import org.travelbot.java.support.exceptions.BadRequestException;
+import org.travelbot.java.support.exceptions.UnauthorizedAccessException;
+import org.travelbot.java.support.logging.AnnotatedGelfJsonAppender;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
