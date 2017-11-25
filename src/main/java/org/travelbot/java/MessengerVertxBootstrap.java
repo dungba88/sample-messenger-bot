@@ -5,6 +5,7 @@ import java.util.concurrent.Executors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.plugins.util.PluginManager;
+import org.joo.scorpius.support.BaseRequest;
 import org.joo.scorpius.support.message.CustomMessage;
 import org.joo.scorpius.support.message.ExecutionContextExceptionMessage;
 import org.joo.scorpius.support.message.ExecutionContextStartMessage;
@@ -14,19 +15,25 @@ import org.joo.scorpius.trigger.handle.disruptor.DisruptorHandlingStrategy;
 import org.travelbot.java.controllers.MessengerChallengeController;
 import org.travelbot.java.controllers.MessengerWebhookController;
 import org.travelbot.java.dto.ErrorResponse;
+import org.travelbot.java.dto.messenger.MessengerEvent;
 import org.travelbot.java.exceptions.BadRequestException;
 import org.travelbot.java.exceptions.UnauthorizedAccessException;
 import org.travelbot.java.logging.AnnotatedExecutionContextExceptionMessage;
 import org.travelbot.java.logging.AnnotatedExecutionContextStartMessage;
 import org.travelbot.java.logging.AnnotatedGelfJsonAppender;
 import org.travelbot.java.logging.HttpRequestMessage;
-import org.travelbot.java.triggers.SimpleReplyIntentTrigger;
 import org.travelbot.java.triggers.MessageReceivedTrigger;
 import org.travelbot.java.triggers.NoIntentTrigger;
 import org.travelbot.java.triggers.ParseIntentTrigger;
+import org.travelbot.java.triggers.SimpleReplyIntentTrigger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.messenger4j.exception.MessengerApiException;
+import com.github.messenger4j.exception.MessengerIOException;
+import com.github.messenger4j.send.MessagePayload;
+import com.github.messenger4j.send.Payload;
+import com.github.messenger4j.send.message.TextMessage;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.dsl.ProducerType;
 
@@ -84,6 +91,17 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
             ExecutionContextExceptionMessage exceptionMessage = (ExecutionContextExceptionMessage) msg;
             if (logger.isErrorEnabled())
                 logger.error(new AnnotatedExecutionContextExceptionMessage(exceptionMessage));
+            
+            BaseRequest request = exceptionMessage.getRequest();
+            if (request instanceof MessengerEvent) {
+                MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
+                String recipientId = ((MessengerEvent)request).getBaseEvent().senderId();
+                final Payload payload = MessagePayload.create(recipientId, TextMessage.create(exceptionMessage.getCause().getMessage()));
+                try {
+                    msgApplicationContext.getMessenger().send(payload);
+                } catch (MessengerApiException | MessengerIOException e) {
+                }
+            }
         });
 
         triggerManager.addEventHandler(TriggerEvent.START, (event, msg) -> {

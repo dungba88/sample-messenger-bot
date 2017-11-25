@@ -20,6 +20,10 @@ public class ParseIntentTrigger extends AbstractTrigger<ParseIntentRequest, Pars
         ParseIntentRequest request = (ParseIntentRequest) executionContext.getRequest();
         BaseEvent event = request.getEvent().getBaseEvent();
         Map<String, List<NlpEntity>> entitiesMap = (Map) event.extendedProperties().get("entities");
+        if (entitiesMap == null) {
+            executionContext.finish(null);
+            return;
+        }
         List<NlpEntity> intentEntities = entitiesMap.get("intent");
         ParseIntentResponse response = parse(intentEntities);
         executionContext.finish(response);

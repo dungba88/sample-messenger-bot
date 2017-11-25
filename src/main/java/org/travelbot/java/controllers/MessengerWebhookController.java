@@ -83,6 +83,8 @@ public class MessengerWebhookController extends VertxMessageController {
             return "fb_msg_received";
         if (event.isQuickReplyMessageEvent())
             return "fb_reply_received";
+        if (event.isAttachmentMessageEvent())
+            return "fb_attachment_received";
         return null;
     }
 }
