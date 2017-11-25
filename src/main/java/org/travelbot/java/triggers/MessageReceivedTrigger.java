@@ -9,6 +9,7 @@ import org.joo.scorpius.support.exception.TriggerExecutionException;
 import org.joo.scorpius.trigger.TriggerExecutionContext;
 import org.joo.scorpius.trigger.TriggerManager;
 import org.joo.scorpius.trigger.impl.AbstractTrigger;
+import org.travelbot.java.MessengerApplicationContext;
 import org.travelbot.java.dto.IntentRequest;
 import org.travelbot.java.dto.ParseIntentRequest;
 import org.travelbot.java.dto.ParseIntentResponse;
@@ -25,6 +26,8 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
     public void execute(TriggerExecutionContext executionContext) throws TriggerExecutionException {
         executionContext.finish(null);
 
+        final MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext
+                .getApplicationContext();
         final TriggerManager manager = executionContext.getTriggerManager();
         final MessengerEvent event = (MessengerEvent) executionContext.getRequest();
 
@@ -42,18 +45,21 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
             executionContext.fail(ex);
         }).pipeDone((PipeDoneCallback<BaseResponse, BaseResponse, Throwable>) response -> {
             if (response == null)
-                return (Promise)manager.fire("no_intent", event);
-            
+                return (Promise) manager.fire("no_intent", event);
+
             ParseIntentResponse intentResponse = (ParseIntentResponse) response;
 
             // send user text about the intent
-            MessengerUtils.sendText(executionContext, senderId, String.format("Recognize intent '%s' with confidence %d%%",
-                    intentResponse.getIntent(), (int)(intentResponse.getConfidence() * 100)));
+            if (applicationContext.getConfig().getBoolean("log.send_intent")) {
+                String intentText = String.format("Recognize intent '%s' with confidence %d%%",
+                        intentResponse.getIntent(), (int) (intentResponse.getConfidence() * 100));
+                MessengerUtils.sendText(executionContext, senderId, intentText);
+            }
 
             // call trigger to handle intent
             IntentRequest intentRequest = new IntentRequest(traceId, intentResponse, event);
             String intent = intentRequest.getIntentResponse().getIntent();
-            return (Promise)manager.fire("intent." + intent, intentRequest);
+            return (Promise) manager.fire("intent." + intent, intentRequest);
         }).done(response -> {
             // finally show typing off
             markTypingOff(executionContext, senderId);
