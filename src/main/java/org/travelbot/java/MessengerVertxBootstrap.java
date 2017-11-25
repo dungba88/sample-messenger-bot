@@ -81,6 +81,7 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
         triggerManager.registerTrigger("parse_intent").withAction(ParseIntentTrigger::new);
         triggerManager.registerTrigger("intent.greeting").withAction(SimpleReplyIntentTrigger::new);
         triggerManager.registerTrigger("intent.inquire_name").withAction(SimpleReplyIntentTrigger::new);
+        triggerManager.registerTrigger("intent.inquire_personal").withAction(SimpleReplyIntentTrigger::new);
         triggerManager.registerTrigger("no_intent").withAction(NoIntentTrigger::new);
 
         registerEventHandlers();

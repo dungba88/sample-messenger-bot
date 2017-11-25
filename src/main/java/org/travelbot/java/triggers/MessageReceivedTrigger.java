@@ -2,6 +2,9 @@ package org.travelbot.java.triggers;
 
 import java.util.Optional;
 
+import org.joo.promise4j.PipeDoneCallback;
+import org.joo.promise4j.Promise;
+import org.joo.scorpius.support.BaseResponse;
 import org.joo.scorpius.support.exception.TriggerExecutionException;
 import org.joo.scorpius.trigger.TriggerExecutionContext;
 import org.joo.scorpius.trigger.TriggerManager;
@@ -17,6 +20,7 @@ import com.github.messenger4j.send.senderaction.SenderAction;
 
 public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, MessengerResponse> {
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void execute(TriggerExecutionContext executionContext) throws TriggerExecutionException {
         executionContext.finish(null);
@@ -27,19 +31,19 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
         final String senderId = event.getOriginalEvent().senderId();
         final String text = event.getOriginalEvent().asTextMessageEvent().text();
 
+        Optional<String> traceId = event.fetchRawTraceId();
+
         // always mark seen and show typing on
         MessengerUtils.sendAction(executionContext, senderId, SenderAction.MARK_SEEN);
         MessengerUtils.sendAction(executionContext, senderId, SenderAction.TYPING_ON);
 
-        Optional<String> traceId = event.fetchRawTraceId();
-
         // call trigger to parse intent
         manager.fire("parse_intent", new ParseIntentRequest(traceId, text, event)).fail(ex -> {
             executionContext.fail(ex);
-        }).pipeDone(response -> {
+        }).pipeDone((PipeDoneCallback<BaseResponse, BaseResponse, Throwable>) response -> {
             if (response == null)
-                return manager.fire("no_intent", event);
-
+                return (Promise)manager.fire("no_intent", event);
+            
             ParseIntentResponse intentResponse = (ParseIntentResponse) response;
 
             // send user text about the intent
@@ -49,12 +53,15 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
             // call trigger to handle intent
             IntentRequest intentRequest = new IntentRequest(traceId, intentResponse, event);
             String intent = intentRequest.getIntentResponse().getIntent();
-            return manager.fire("intent." + intent, intentRequest);
+            return (Promise)manager.fire("intent." + intent, intentRequest);
         }).done(response -> {
             // finally show typing off
             markTypingOff(executionContext, senderId);
         }).fail(ex -> {
-            // executionContext.fail(ex);
+            if (ex instanceof TriggerExecutionException)
+                executionContext.fail((TriggerExecutionException) ex);
+            else
+                executionContext.fail(new TriggerExecutionException(ex));
             // finally show typing off
             markTypingOff(executionContext, senderId);
         });
