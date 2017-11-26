@@ -13,9 +13,9 @@
 	<loggers>
 		<logger level="OFF" name="org.joo.scorpius.trigger.impl.DefaultTriggerExecutionContext">
 		</logger>
-		<root level="debug">
+		<asyncRoot level="debug">
 			<appender-ref ref="console" />
 			<appender-ref ref="gelfAppender" />
-		</root>
+		</asyncRoot>
 	</loggers>
 </configuration>
