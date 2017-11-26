@@ -1,7 +1,6 @@
 package org.travelbot.java;
 
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,8 +50,8 @@ public class TriggerConfigurator {
     }
 
     public void configureTriggers() {
-        triggerManager.setHandlingStrategy(new DisruptorHandlingStrategy(1024, Executors.newWorkStealingPool(),
-                ProducerType.SINGLE, new YieldingWaitStrategy()));
+        triggerManager.setHandlingStrategy(
+                new DisruptorHandlingStrategy(1024, ProducerType.SINGLE, new YieldingWaitStrategy()));
 
         List<? extends Config> configList = applicationContext.getConfig().getConfigList("triggers");
 
@@ -61,12 +60,12 @@ public class TriggerConfigurator {
         });
 
         registerEventHandlers();
-        
+
         warmup();
     }
 
     private void warmup() {
-        for(int i=0; i<1000; i++)
+        for (int i = 0; i < 1000; i++)
             triggerManager.fire("parse_intent", null);
     }
 
@@ -102,7 +101,7 @@ public class TriggerConfigurator {
 
         if (msgApplicationContext.getConfig().getBoolean("log.trigger.exception"))
             registerTriggerExceptionHandler(msgApplicationContext);
-        
+
         if (msgApplicationContext.getConfig().getBoolean("log.trigger.create"))
             registerTriggerCreateHandler();
 
@@ -141,7 +140,7 @@ public class TriggerConfigurator {
         } catch (MessengerApiException | MessengerIOException e) {
         }
     }
-    
+
     private void registerTriggerCreateHandler() {
         triggerManager.addEventHandler(TriggerEvent.CREATED, (event, msg) -> {
             ExecutionContextStartMessage startMessage = (ExecutionContextStartMessage) msg;
