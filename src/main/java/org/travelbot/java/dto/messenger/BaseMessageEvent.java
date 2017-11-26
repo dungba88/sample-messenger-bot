@@ -10,7 +10,7 @@ public class BaseMessageEvent implements Serializable {
 
     private static final long serialVersionUID = -6037621467747809537L;
 
-    protected final BaseEvent event;
+    protected final transient BaseEvent event;
 
     public BaseMessageEvent(BaseEvent event) {
         this.event = event;
