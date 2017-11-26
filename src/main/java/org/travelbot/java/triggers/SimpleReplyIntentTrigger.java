@@ -9,6 +9,8 @@ import org.travelbot.java.dto.IntentRequest;
 import org.travelbot.java.dto.IntentResponse;
 import org.travelbot.java.support.utils.MessengerUtils;
 
+import com.typesafe.config.Config;
+
 public class SimpleReplyIntentTrigger extends AbstractTrigger<IntentRequest, BaseResponse> {
 
     @Override
@@ -19,9 +21,10 @@ public class SimpleReplyIntentTrigger extends AbstractTrigger<IntentRequest, Bas
         String intent = request.getIntentResponse().getIntent();
         
         String path = getPath(applicationContext, intent);
-        String response = applicationContext.getConfig().getString(path);
-        executionContext.finish(new IntentResponse(response));
-        MessengerUtils.sendText(executionContext, request.getSenderId(), response);
+        Config cfg = applicationContext.getConfig().getConfig(path);
+        
+        executionContext.finish(new IntentResponse(cfg.entrySet()));
+        MessengerUtils.sendWithConfig(executionContext, request.getSenderId(), cfg);
     }
 
     private String getPath(MessengerApplicationContext applicationContext, String intent) {

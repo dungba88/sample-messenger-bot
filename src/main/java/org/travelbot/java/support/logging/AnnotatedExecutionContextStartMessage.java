@@ -9,20 +9,22 @@ public class AnnotatedExecutionContextStartMessage extends AnnotatedGelfMessage 
 
     private static final long serialVersionUID = 3900326418162752886L;
 
-    private static final ObjectMapper mapper = new ObjectMapper();
-
     private ExecutionContextStartMessage msg;
 
-    public AnnotatedExecutionContextStartMessage(ExecutionContextStartMessage msg) {
+    public AnnotatedExecutionContextStartMessage(ObjectMapper mapper, ExecutionContextStartMessage msg, Long latency) {
         super();
         this.msg = msg;
         putField("executionContextId", msg.getId());
-        putField("traceId", msg.getRequest().getTraceId());
         putField("eventName", msg.getEventName());
-        try {
-            putField("payload", mapper.writeValueAsString(msg.getRequest()));
-        } catch (JsonProcessingException e) {
-            putField("payloadEncodeException", e);
+        if (latency != null)
+            putField("exec_latency", latency / 1000 + "us");
+        if (msg.getRequest() != null) {
+            putField("traceId", msg.getRequest().getTraceId());
+            try {
+                putField("payload", mapper.writeValueAsString(msg.getRequest()));
+            } catch (JsonProcessingException e) {
+                putField("payloadEncodeException", e);
+            }
         }
     }
 

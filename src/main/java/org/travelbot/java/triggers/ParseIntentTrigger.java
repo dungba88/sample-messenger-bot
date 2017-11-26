@@ -18,6 +18,10 @@ public class ParseIntentTrigger extends AbstractTrigger<ParseIntentRequest, Pars
     @Override
     public void execute(TriggerExecutionContext executionContext) throws TriggerExecutionException {
         ParseIntentRequest request = (ParseIntentRequest) executionContext.getRequest();
+        if (request == null) {
+            executionContext.finish(null);
+            return;
+        }
         BaseEvent event = request.getEvent().getBaseEvent();
         Map<String, List<NlpEntity>> entitiesMap = (Map) event.extendedProperties().get("entities");
         if (entitiesMap == null) {
@@ -33,8 +37,12 @@ public class ParseIntentTrigger extends AbstractTrigger<ParseIntentRequest, Pars
         if (intentEntities == null || intentEntities.isEmpty())
             return null;
         NlpEntity[] intents = intentEntities.toArray(new NlpEntity[0]);
-        NlpEntity mainIntent = intentEntities.stream().max((e1, e2) -> e1.getConfidence() > e2.getConfidence() ? 1 : -1)
-                .orElse(null);
+        
+        NlpEntity mainIntent = null;
+        for(NlpEntity intent : intents) {
+            if (mainIntent == null || mainIntent.getConfidence() < intent.getConfidence())
+                mainIntent = intent;
+        }
 
         if (mainIntent == null)
             return null;

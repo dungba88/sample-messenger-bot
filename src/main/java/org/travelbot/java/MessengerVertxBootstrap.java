@@ -14,7 +14,6 @@ import org.travelbot.java.support.exceptions.UnauthorizedAccessException;
 import org.travelbot.java.support.logging.AnnotatedGelfJsonAppender;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -29,16 +28,18 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
 
     final static Logger logger = LogManager.getLogger(MessengerVertxBootstrap.class);
 
-    private ObjectMapper mapper = new ObjectMapper();
-
     public void run() {
         MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
 
-        msgApplicationContext.override(IdGenerator.class, new TimeBasedIdGenerator());
+        configureOverridens(msgApplicationContext);
 
         new TriggerConfigurator(triggerManager, msgApplicationContext).configureTriggers();
 
         configureServer(new VertxOptions().setEventLoopPoolSize(8), msgApplicationContext.getPort());
+    }
+
+    private void configureOverridens(MessengerApplicationContext msgApplicationContext) {
+        msgApplicationContext.override(IdGenerator.class, new TimeBasedIdGenerator());
     }
 
     protected Router configureRoutes(Vertx vertx) {
@@ -49,9 +50,14 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
                 .handler(new MessengerChallengeController(msgApplicationContext.getMessenger())::handle);
         router.post("/fb_msg_hook")
                 .handler(new MessengerWebhookController(triggerManager, msgApplicationContext.getMessenger())::handle);
-        router.route().failureHandler(this::handleFailure);
+        router.route().handler(this::handleDefault).failureHandler(this::handleFailure);
 
         return router;
+    }
+
+    private void handleDefault(RoutingContext rc) {
+        if (!rc.response().ended())
+            rc.response().end();
     }
 
     private void handleFailure(RoutingContext rc) {
@@ -75,8 +81,9 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
     }
 
     private String serialize(Object obj) {
+        MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
         try {
-            return mapper.writeValueAsString(obj);
+            return msgApplicationContext.getObjectMapper().writeValueAsString(obj);
         } catch (JsonProcessingException e) {
             logger.error(e);
         }

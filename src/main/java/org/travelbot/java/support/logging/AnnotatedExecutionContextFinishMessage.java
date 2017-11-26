@@ -9,16 +9,18 @@ public class AnnotatedExecutionContextFinishMessage extends AnnotatedGelfMessage
 
     private static final long serialVersionUID = 3900326418162752886L;
 
-    private static final ObjectMapper mapper = new ObjectMapper();
-
     private ExecutionContextFinishMessage msg;
 
-    public AnnotatedExecutionContextFinishMessage(ExecutionContextFinishMessage msg) {
+    public AnnotatedExecutionContextFinishMessage(ObjectMapper mapper, ExecutionContextFinishMessage msg, Long elapsed) {
         super();
         this.msg = msg;
         putField("executionContextId", msg.getId());
-        putField("traceId", msg.getRequest().getTraceId());
         putField("eventName", msg.getEventName());
+        if (elapsed != null)
+            putField("exec_elapsed", elapsed / 1000 + "us");
+        if (msg.getRequest() != null) {
+            putField("traceId", msg.getRequest().getTraceId());
+        }
         try {
             putField("response", mapper.writeValueAsString(msg.getResponse()));
         } catch (JsonProcessingException e) {

@@ -9,21 +9,21 @@ public class AnnotatedExecutionContextExceptionMessage extends AnnotatedGelfMess
 
     private static final long serialVersionUID = 3900326418162752886L;
 
-    private static final ObjectMapper mapper = new ObjectMapper();
-
     private ExecutionContextExceptionMessage msg;
 
-    public AnnotatedExecutionContextExceptionMessage(ExecutionContextExceptionMessage msg) {
+    public AnnotatedExecutionContextExceptionMessage(ObjectMapper mapper, ExecutionContextExceptionMessage msg) {
         super();
         this.msg = msg;
         putField("executionContextId", msg.getId());
-        putField("traceId", msg.getRequest().getTraceId());
-        putField("eventName", msg.getEventName());
-        try {
-            putField("payload", mapper.writeValueAsString(msg.getRequest()));
-        } catch (JsonProcessingException e) {
-            putField("payloadEncodeException", e);
+        if (msg.getRequest() != null) {
+            putField("traceId", msg.getRequest().getTraceId());
+            try {
+                putField("payload", mapper.writeValueAsString(msg.getRequest()));
+            } catch (JsonProcessingException e) {
+                putField("payloadEncodeException", e);
+            }
         }
+        putField("eventName", msg.getEventName());
     }
 
     @Override

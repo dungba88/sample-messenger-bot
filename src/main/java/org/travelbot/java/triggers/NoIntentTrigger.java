@@ -9,6 +9,8 @@ import org.travelbot.java.dto.IntentResponse;
 import org.travelbot.java.dto.messenger.MessengerEvent;
 import org.travelbot.java.support.utils.MessengerUtils;
 
+import com.typesafe.config.Config;
+
 public class NoIntentTrigger extends AbstractTrigger<MessengerEvent, BaseResponse> {
 
     @Override
@@ -16,8 +18,8 @@ public class NoIntentTrigger extends AbstractTrigger<MessengerEvent, BaseRespons
         MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext
                 .getApplicationContext();
         MessengerEvent request = (MessengerEvent) executionContext.getRequest();
-        String response = applicationContext.getConfig().getString("reply.no_intent");
-        executionContext.finish(new IntentResponse(response));
-        MessengerUtils.sendText(executionContext, request.getBaseEvent().senderId(), response);
+        Config cfg = applicationContext.getConfig().getConfig("reply.no_intent");
+        executionContext.finish(new IntentResponse(cfg.entrySet()));
+        MessengerUtils.sendWithConfig(executionContext, request.getBaseEvent().senderId(), cfg);
     }
 }
