@@ -26,7 +26,7 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
         PluginManager.addPackage(AnnotatedGelfJsonAppender.class.getPackage().getName());
     }
 
-    final static Logger logger = LogManager.getLogger(MessengerVertxBootstrap.class);
+    private final static Logger logger = LogManager.getLogger(MessengerVertxBootstrap.class);
 
     public void run() {
         MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;

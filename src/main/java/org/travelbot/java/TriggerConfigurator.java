@@ -35,7 +35,7 @@ import lombok.Getter;
 
 public class TriggerConfigurator {
 
-    final static Logger logger = LogManager.getLogger(TriggerConfigurator.class);
+    private final static Logger logger = LogManager.getLogger(TriggerConfigurator.class);
 
     private final TriggerManager triggerManager;
 
