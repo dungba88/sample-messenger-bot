@@ -13,7 +13,7 @@ public class IntentResponse extends BaseResponse {
 
     private static final long serialVersionUID = 2395351462910462066L;
 
-    private final @Getter Set<Entry<String, ConfigValue>> response;
+    private final transient @Getter Set<Entry<String, ConfigValue>> response;
 
     public IntentResponse(Set<Entry<String, ConfigValue>> configSet) {
         this.response = configSet;
