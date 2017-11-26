@@ -1,6 +1,7 @@
 package org.travelbot.java;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,7 +36,7 @@ import lombok.Getter;
 
 public class TriggerConfigurator {
 
-    private final static Logger logger = LogManager.getLogger(TriggerConfigurator.class);
+    private static final Logger logger = LogManager.getLogger(TriggerConfigurator.class);
 
     private final TriggerManager triggerManager;
 
@@ -55,9 +56,8 @@ public class TriggerConfigurator {
 
         List<? extends Config> configList = applicationContext.getConfig().getConfigList("triggers");
 
-        configList.stream().map(this::parseTriggerConfig).filter(cfg -> cfg != null).forEach(cfg -> {
-            triggerManager.registerTrigger(cfg.getEvent(), cfg.getConfig());
-        });
+        configList.stream().map(this::parseTriggerConfig).filter(Objects::nonNull)
+                .forEach(cfg -> triggerManager.registerTrigger(cfg.getEvent(), cfg.getConfig()));
 
         registerEventHandlers();
 
@@ -97,21 +97,19 @@ public class TriggerConfigurator {
     }
 
     protected void registerEventHandlers() {
-        MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
+        if (applicationContext.getConfig().getBoolean("log.trigger.exception"))
+            registerTriggerExceptionHandler(applicationContext);
 
-        if (msgApplicationContext.getConfig().getBoolean("log.trigger.exception"))
-            registerTriggerExceptionHandler(msgApplicationContext);
-
-        if (msgApplicationContext.getConfig().getBoolean("log.trigger.create"))
+        if (applicationContext.getConfig().getBoolean("log.trigger.create"))
             registerTriggerCreateHandler();
 
-        if (msgApplicationContext.getConfig().getBoolean("log.trigger.start"))
+        if (applicationContext.getConfig().getBoolean("log.trigger.start"))
             registerTriggerStartHandler();
 
-        if (msgApplicationContext.getConfig().getBoolean("log.trigger.finish"))
+        if (applicationContext.getConfig().getBoolean("log.trigger.finish"))
             registerTriggerFinishHandler();
 
-        if (msgApplicationContext.getConfig().getBoolean("log.trigger.custom"))
+        if (applicationContext.getConfig().getBoolean("log.trigger.custom"))
             registerTriggerCustomHandler();
     }
 
@@ -138,6 +136,8 @@ public class TriggerConfigurator {
         try {
             msgApplicationContext.getMessenger().send(payload);
         } catch (MessengerApiException | MessengerIOException e) {
+            if (logger.isDebugEnabled())
+                logger.debug("Exception occurred while trying to send exception to user", e);
         }
     }
 

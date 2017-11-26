@@ -7,16 +7,9 @@ import lombok.NonNull;
 
 public class StopWatchBucket {
     
-    private final static int BUCKET_SIZE_THRESHOLD = 10000;
+    private static final int BUCKET_SIZE_THRESHOLD = 10000;
     
-    private final static StopWatchBucket instance = new StopWatchBucket();
-    
-//    private ThreadLocal<Map<String, Long>> buckets = new ThreadLocal<Map<String, Long>>() {
-//
-//        public Map<String, Long> initialValue() {
-//            return new HashMap<>();
-//        }
-//    };
+    private static final StopWatchBucket instance = new StopWatchBucket();
     
     private Map<String, Long> map = new ConcurrentHashMap<>();
     
@@ -24,12 +17,11 @@ public class StopWatchBucket {
         
     }
     
-    public final static StopWatchBucket getInstance() {
+    public static final StopWatchBucket getInstance() {
         return StopWatchBucket.instance;
     }
     
     public void start(@NonNull String id) {
-//        Map<String, Long> map = buckets.get();
         if (map.size() > BUCKET_SIZE_THRESHOLD)
             map.clear();
         
@@ -38,7 +30,6 @@ public class StopWatchBucket {
     }
     
     public Long stop(@NonNull String id) {
-//        Map<String, Long> map = buckets.get();
         Long start = map.get(id);
         if (start != null)
             return System.nanoTime() - map.get(id);

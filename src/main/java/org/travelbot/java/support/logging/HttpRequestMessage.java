@@ -9,7 +9,7 @@ public class HttpRequestMessage extends AnnotatedGelfMessage {
 
     private static final long serialVersionUID = -8893470932483746453L;
 
-    private HttpServerRequest request;
+    private transient HttpServerRequest request;
 
     public HttpRequestMessage(RoutingContext rc) {
         super();
@@ -36,7 +36,7 @@ public class HttpRequestMessage extends AnnotatedGelfMessage {
 
     @Override
     public Object[] getParameters() {
-        return null;
+        return new Object[0];
     }
 
     @Override

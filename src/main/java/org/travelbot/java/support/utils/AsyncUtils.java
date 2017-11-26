@@ -8,6 +8,10 @@ import org.joo.promise4j.impl.CompletableDeferredObject;
 
 public final class AsyncUtils {
     
+    private AsyncUtils() {
+        
+    }
+    
     public static <T> Promise<T, Throwable> supplyTask(Supplier<T> supplier) {
         CompletableFuture<T> future = CompletableFuture.supplyAsync(supplier);
         return new CompletableDeferredObject<>(future);

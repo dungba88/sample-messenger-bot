@@ -40,7 +40,7 @@ public class AnnotatedExecutionContextFinishMessage extends AnnotatedGelfMessage
 
     @Override
     public Object[] getParameters() {
-        return null;
+        return new Object[0];
     }
 
     @Override

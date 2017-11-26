@@ -16,18 +16,18 @@ import lombok.Getter;
 
 public class MessengerApplicationContext extends ApplicationContext {
 
-    public final static String ACCESS_TOKEN = System.getenv("AccessToken");
+    public static final String ACCESS_TOKEN = System.getenv("AccessToken");
 
-    public final static String APP_SECRET = System.getenv("AppSecret");
+    public static final String APP_SECRET = System.getenv("AppSecret");
 
-    public final static String VERIFY_TOKEN = System.getenv("VerifyToken");
+    public static final String VERIFY_TOKEN = System.getenv("VerifyToken");
 
-    public final static String PORT = System.getenv("PORT");
+    public static final String PORT = System.getenv("PORT");
 
     private @Getter Messenger messenger;
-    
+
     private @Getter Config config;
-    
+
     private @Getter ObjectMapper objectMapper;
 
     public MessengerApplicationContext(ApplicationModuleInjector injector) {

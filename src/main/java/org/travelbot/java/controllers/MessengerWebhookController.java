@@ -9,6 +9,7 @@ import org.joo.scorpius.trigger.TriggerEvent;
 import org.joo.scorpius.trigger.TriggerManager;
 import org.travelbot.java.dto.messenger.MessengerEvent;
 import org.travelbot.java.support.exceptions.BadRequestException;
+import org.travelbot.java.support.exceptions.UnauthorizedAccessException;
 import org.travelbot.java.support.logging.HttpRequestMessage;
 
 import com.github.messenger4j.Messenger;
@@ -28,6 +29,7 @@ public class MessengerWebhookController extends VertxMessageController {
         this.messenger = messenger;
     }
 
+    @Override
     public void handle(RoutingContext rc) {
         HttpServerResponse response = rc.response();
         response.putHeader("Content-Type", "application/json");
@@ -45,15 +47,13 @@ public class MessengerWebhookController extends VertxMessageController {
         if (payload == null || payload.isEmpty())
             throw new BadRequestException("payload is null");
 
-        // String signature = rc.request().getHeader("X-Hub-Signature");
+        String signature = rc.request().getHeader("X-Hub-Signature");
 
-        // if (signature == null)
-        // throw new UnauthorizedAccessException("signature cannot be null");
+        if (signature == null)
+            throw new UnauthorizedAccessException("signature cannot be null");
 
         try {
-            messenger.onReceiveEvents(payload, Optional.empty(), event -> {
-                handleEvent(rc, event, traceId);
-            });
+            messenger.onReceiveEvents(payload, Optional.empty(), event -> handleEvent(rc, event, traceId));
         } catch (MessengerVerificationException ex) {
             rc.fail(ex);
         } catch (JsonSyntaxException ex) {
@@ -71,11 +71,8 @@ public class MessengerWebhookController extends VertxMessageController {
         MessengerEvent msgEvent = new MessengerEvent(event);
         msgEvent.attachTraceId(traceId);
 
-        triggerManager.fire(eventName, msgEvent, triggerResponse -> {
-            rc.next();
-        }, exception -> {
-            onFail(exception, rc.response(), rc);
-        });
+        triggerManager.fire(eventName, msgEvent, triggerResponse -> rc.next(),
+                exception -> onFail(exception, rc.response(), rc));
     }
 
     private String getEventNameForMessengerEvent(Event event) {

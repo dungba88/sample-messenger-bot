@@ -15,13 +15,13 @@ public class MessengerEvent extends BaseRequest {
 
     private final long createdTime;
 
-    private final Event originalEvent;
+    private final transient Event originalEvent;
 
     public MessengerEvent(Event originalEvent) {
         this.originalEvent = originalEvent;
         this.createdTime = System.currentTimeMillis();
     }
-    
+
     @JsonIgnore
     public BaseEvent getBaseEvent() {
         if (originalEvent.isTextMessageEvent())

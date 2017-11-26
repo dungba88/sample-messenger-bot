@@ -21,6 +21,10 @@ import com.github.messenger4j.send.senderaction.SenderAction;
 import com.typesafe.config.Config;
 
 public final class MessengerUtils {
+    
+    private MessengerUtils() {
+        
+    }
 
     public static Promise<Boolean, Throwable> sendAction(TriggerExecutionContext executionContext, String recipientId,
             SenderAction senderAction) {

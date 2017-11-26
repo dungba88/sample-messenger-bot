@@ -26,7 +26,7 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
         PluginManager.addPackage(AnnotatedGelfJsonAppender.class.getPackage().getName());
     }
 
-    private final static Logger logger = LogManager.getLogger(MessengerVertxBootstrap.class);
+    private static final Logger logger = LogManager.getLogger(MessengerVertxBootstrap.class);
 
     public void run() {
         MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
@@ -42,6 +42,7 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
         msgApplicationContext.override(IdGenerator.class, new TimeBasedIdGenerator());
     }
 
+    @Override
     protected Router configureRoutes(Vertx vertx) {
         MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
 

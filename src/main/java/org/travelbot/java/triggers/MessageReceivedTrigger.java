@@ -41,36 +41,32 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
         MessengerUtils.sendAction(executionContext, senderId, SenderAction.TYPING_ON);
 
         // call trigger to parse intent
-        manager.fire("parse_intent", new ParseIntentRequest(traceId, text, event)).fail(ex -> {
-            executionContext.fail(ex);
-        }).pipeDone((PipeDoneCallback<BaseResponse, BaseResponse, Throwable>) response -> {
-            if (response == null)
-                return (Promise) manager.fire("no_intent", event);
+        manager.fire("parse_intent", new ParseIntentRequest(traceId, text, event)).fail(executionContext::fail)
+                .pipeDone((PipeDoneCallback<BaseResponse, BaseResponse, Throwable>) response -> {
+                    if (response == null)
+                        return (Promise) manager.fire("no_intent", event);
 
-            ParseIntentResponse intentResponse = (ParseIntentResponse) response;
+                    ParseIntentResponse intentResponse = (ParseIntentResponse) response;
 
-            // send user text about the intent
-            if (applicationContext.getConfig().getBoolean("log.send_intent")) {
-                String intentText = String.format("Recognize intent '%s' with confidence %d%%",
-                        intentResponse.getIntent(), (int) (intentResponse.getConfidence() * 100));
-                MessengerUtils.sendText(executionContext, senderId, intentText);
-            }
+                    // send user text about the intent
+                    if (applicationContext.getConfig().getBoolean("log.send_intent")) {
+                        String intentText = String.format("Recognize intent '%s' with confidence %d%%",
+                                intentResponse.getIntent(), (int) (intentResponse.getConfidence() * 100));
+                        MessengerUtils.sendText(executionContext, senderId, intentText);
+                    }
 
-            // call trigger to handle intent
-            IntentRequest intentRequest = new IntentRequest(traceId, intentResponse, event);
-            String intent = intentRequest.getIntentResponse().getIntent();
-            return (Promise) manager.fire("intent." + intent, intentRequest);
-        }).done(response -> {
-            // finally show typing off
-            markTypingOff(executionContext, senderId);
-        }).fail(ex -> {
-            if (ex instanceof TriggerExecutionException)
-                executionContext.fail((TriggerExecutionException) ex);
-            else
-                executionContext.fail(new TriggerExecutionException(ex));
-            // finally show typing off
-            markTypingOff(executionContext, senderId);
-        });
+                    // call trigger to handle intent
+                    IntentRequest intentRequest = new IntentRequest(traceId, intentResponse, event);
+                    String intent = intentRequest.getIntentResponse().getIntent();
+                    return (Promise) manager.fire("intent." + intent, intentRequest);
+                }).done(response -> markTypingOff(executionContext, senderId)).fail(ex -> {
+                    if (ex instanceof TriggerExecutionException)
+                        executionContext.fail((TriggerExecutionException) ex);
+                    else
+                        executionContext.fail(new TriggerExecutionException(ex));
+                    // finally show typing off
+                    markTypingOff(executionContext, senderId);
+                });
     }
 
     private void markTypingOff(TriggerExecutionContext executionContext, String senderId) {
