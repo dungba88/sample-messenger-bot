@@ -9,6 +9,8 @@ import com.typesafe.config.ConfigValue;
 
 public class ConfigValueSerializer extends StdSerializer<ConfigValue> {
 
+    private static final long serialVersionUID = 1906797360517736007L;
+
     public ConfigValueSerializer(Class<ConfigValue> t) {
         super(t);
     }
@@ -16,8 +18,6 @@ public class ConfigValueSerializer extends StdSerializer<ConfigValue> {
     public ConfigValueSerializer() {
         this(null);
     }
-
-    private static final long serialVersionUID = 1906797360517736007L;
 
     @Override
     public void serialize(ConfigValue value, JsonGenerator gen, SerializerProvider provider) throws IOException {

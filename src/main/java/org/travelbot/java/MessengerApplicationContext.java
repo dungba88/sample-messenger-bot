@@ -43,9 +43,8 @@ public class MessengerApplicationContext extends ApplicationContext {
     }
 
     public int getPort() {
-        if (PORT != null && !PORT.isEmpty()) {
+        if (PORT != null && !PORT.isEmpty())
             return Integer.parseInt(PORT);
-        }
         return 9090;
     }
 }

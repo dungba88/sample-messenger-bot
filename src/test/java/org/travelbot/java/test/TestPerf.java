@@ -11,6 +11,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.core.config.plugins.util.PluginManager;
+import org.joo.scorpius.ApplicationContext;
+import org.joo.scorpius.support.builders.ApplicationContextBuilder;
 import org.joo.scorpius.support.builders.contracts.IdGenerator;
 import org.joo.scorpius.support.builders.id.TimeBasedIdGenerator;
 import org.joo.scorpius.trigger.TriggerManager;
@@ -20,7 +22,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.travelbot.java.MessengerApplicationContext;
-import org.travelbot.java.MessengerApplicationContextBuilder;
 import org.travelbot.java.TriggerConfigurator;
 import org.travelbot.java.dto.messenger.MessengerEvent;
 import org.travelbot.java.support.logging.AnnotatedGelfJsonAppender;
@@ -39,22 +40,26 @@ public class TestPerf {
     }
 
     private int iterations = 10000;
-    
+
     private BaseEvent baseEvent;
-    
+
     public TestPerf(BaseEvent baseEvent) {
         this.baseEvent = baseEvent;
     }
 
     @Test
     public void test() {
-        MessengerApplicationContext applicationContext = (MessengerApplicationContext) new MessengerApplicationContextBuilder()
-                .build();
+        MessengerApplicationContext applicationContext = (MessengerApplicationContext) new ApplicationContextBuilder() {
+            
+            public ApplicationContext build() {
+                return new MessengerApplicationContext(getInjector());
+            }
+        }.build();
         applicationContext.override(IdGenerator.class, new TimeBasedIdGenerator());
         TriggerManager manager = new DefaultTriggerManager(applicationContext);
 
         new TriggerConfigurator(manager, applicationContext).configureTriggers();
-        
+
         MessengerEvent event = new MessengerEvent(new Event(baseEvent));
         event.attachTraceId(Optional.empty());
 
@@ -89,7 +94,7 @@ public class TestPerf {
         System.out.println("total (ms): " + (elapsed / 1000000) + "ms");
         System.out.println("Average (us): " + (elapsed / iterations / 1000) + "us");
         System.out.println("Average (ns): " + (elapsed / iterations) + "ns");
-        
+
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -115,7 +120,7 @@ public class TestPerf {
         map.put("intent", new ArrayList<>(Arrays.asList(new NlpEntity[] { new NlpEntity("intent", "greeting", 1) })));
         return map;
     }
-    
+
     @Parameters
     public static List<Object[]> data() {
         List<Object[]> list = new ArrayList<>();
