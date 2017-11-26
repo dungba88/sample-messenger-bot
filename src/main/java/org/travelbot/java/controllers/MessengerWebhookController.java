@@ -73,7 +73,6 @@ public class MessengerWebhookController extends VertxMessageController {
 
         triggerManager.fire(eventName, msgEvent, triggerResponse -> {
             rc.next();
-//            onDone(triggerResponse, rc.response(), rc);
         }, exception -> {
             onFail(exception, rc.response(), rc);
         });
