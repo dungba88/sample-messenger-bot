@@ -54,13 +54,17 @@ public class TestPerf {
         TriggerManager manager = new DefaultTriggerManager(applicationContext);
 
         new TriggerConfigurator(manager, applicationContext).configureTriggers();
+        
+        MessengerEvent event = new MessengerEvent(new Event(baseEvent));
+        event.attachTraceId(Optional.empty());
+
+        for (int i = 0; i < iterations; i++) {
+            manager.fire("fb_msg_received", event);
+        }
 
         CountDownLatch latch = new CountDownLatch(1);
 
         AtomicInteger counter = new AtomicInteger(0);
-
-        MessengerEvent event = new MessengerEvent(new Event(baseEvent));
-        event.attachTraceId(Optional.empty());
 
         long start = System.nanoTime();
         for (int i = 0; i < iterations; i++) {
