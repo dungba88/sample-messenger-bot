@@ -90,13 +90,14 @@ public class TestPerf {
         }
 
         long elapsed = System.nanoTime() - start;
+        long pace = iterations * 1000000000L / elapsed;
 
-        System.out.println("total (ms): " + (elapsed / 1000000) + "ms");
+        System.out.println("Total (ms): " + (elapsed / 1000000) + "ms");
         System.out.println("Average (us): " + (elapsed / iterations / 1000) + "us");
-        System.out.println("Average (ns): " + (elapsed / iterations) + "ns");
+        System.out.println("Pace: " + pace + " ops/sec");
 
         try {
-            Thread.sleep(3000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
