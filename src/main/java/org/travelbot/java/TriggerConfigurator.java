@@ -29,7 +29,6 @@ import com.github.messenger4j.send.MessagePayload;
 import com.github.messenger4j.send.Payload;
 import com.github.messenger4j.send.message.TextMessage;
 import com.lmax.disruptor.YieldingWaitStrategy;
-import com.lmax.disruptor.dsl.ProducerType;
 import com.typesafe.config.Config;
 
 import lombok.Getter;
@@ -51,8 +50,7 @@ public class TriggerConfigurator {
     }
 
     public void configureTriggers() {
-        triggerManager.setHandlingStrategy(
-                new DisruptorHandlingStrategy(1024, ProducerType.SINGLE, new YieldingWaitStrategy()));
+        triggerManager.setHandlingStrategy(new DisruptorHandlingStrategy(1024, new YieldingWaitStrategy()));
 
         List<? extends Config> configList = applicationContext.getConfig().getConfigList("triggers");
 
