@@ -26,7 +26,6 @@ import org.travelbot.java.TriggerConfigurator;
 import org.travelbot.java.dto.messenger.MessengerEvent;
 import org.travelbot.java.support.logging.AnnotatedGelfJsonAppender;
 
-import com.github.messenger4j.Messenger;
 import com.github.messenger4j.nlp.NlpEntity;
 import com.github.messenger4j.webhook.Event;
 import com.github.messenger4j.webhook.event.BaseEvent;
