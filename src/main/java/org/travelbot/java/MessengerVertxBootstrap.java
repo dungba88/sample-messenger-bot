@@ -42,9 +42,18 @@ public class MessengerVertxBootstrap extends VertxBootstrap {
 
         configureOverridens(msgApplicationContext);
 
-        new TriggerConfigurator(triggerManager, msgApplicationContext).configureTriggers();
+        configureTriggers(msgApplicationContext);
 
-        configureServer(new VertxOptions().setEventLoopPoolSize(8), msgApplicationContext.getPort());
+        configureServer(msgApplicationContext);
+    }
+
+    private void configureServer(MessengerApplicationContext msgApplicationContext) {
+        int eventLoopSize = msgApplicationContext.getConfig().getInt("executors.vertx_event_loop_size");
+        super.configureServer(new VertxOptions().setEventLoopPoolSize(eventLoopSize), msgApplicationContext.getPort());
+    }
+
+    private void configureTriggers(MessengerApplicationContext msgApplicationContext) {
+        new TriggerConfigurator(triggerManager, msgApplicationContext).configureTriggers();
     }
 
     private void configureOverridens(MessengerApplicationContext msgApplicationContext) {
