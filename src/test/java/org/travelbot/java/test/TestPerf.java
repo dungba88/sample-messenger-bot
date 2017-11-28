@@ -26,10 +26,13 @@ import org.travelbot.java.TriggerConfigurator;
 import org.travelbot.java.dto.messenger.MessengerEvent;
 import org.travelbot.java.support.logging.AnnotatedGelfJsonAppender;
 
+import com.github.messenger4j.Messenger;
 import com.github.messenger4j.nlp.NlpEntity;
 import com.github.messenger4j.webhook.Event;
 import com.github.messenger4j.webhook.event.BaseEvent;
 import com.github.messenger4j.webhook.event.TextMessageEvent;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 @RunWith(Parameterized.class)
 public class TestPerf {
@@ -55,7 +58,10 @@ public class TestPerf {
                 return new MessengerApplicationContext(getInjector());
             }
         }.build();
+
         applicationContext.override(IdGenerator.class, new TimeBasedIdGenerator());
+        applicationContext.override(Config.class, ConfigFactory.load());
+        
         TriggerManager manager = new DefaultTriggerManager(applicationContext);
 
         new TriggerConfigurator(manager, applicationContext).configureTriggers();
