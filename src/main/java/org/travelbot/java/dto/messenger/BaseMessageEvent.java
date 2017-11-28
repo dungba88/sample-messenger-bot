@@ -27,7 +27,7 @@ public class BaseMessageEvent implements Serializable {
     public Instant getTimestamp() {
         return event.timestamp();
     }
-    
+
     public Map<String, Object> getExtendedProperties() {
         return event.extendedProperties();
     }

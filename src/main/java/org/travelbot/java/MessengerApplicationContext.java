@@ -25,7 +25,7 @@ public class MessengerApplicationContext extends ApplicationContext {
     private @Getter Config config;
 
     private @Getter ObjectMapper objectMapper;
-    
+
     private @Getter AsyncTaskRunner taskRunner;
 
     public MessengerApplicationContext(ApplicationModuleInjector injector) {

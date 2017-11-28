@@ -37,9 +37,9 @@ public class ParseIntentTrigger extends AbstractTrigger<ParseIntentRequest, Pars
         if (intentEntities == null || intentEntities.isEmpty())
             return null;
         NlpEntity[] intents = intentEntities.toArray(new NlpEntity[0]);
-        
+
         NlpEntity mainIntent = null;
-        for(NlpEntity intent : intents) {
+        for (NlpEntity intent : intents) {
             if (mainIntent == null || mainIntent.getConfidence() < intent.getConfidence())
                 mainIntent = intent;
         }

@@ -183,10 +183,9 @@ public class AnnotatedGelfJsonAppender extends AbstractAppender {
     protected String getSimpleStacktraceAsString(final Throwable thrown) {
         final StringBuilder stackTraceBuilder = new StringBuilder();
         for (StackTraceElement stackTraceElement : thrown.getStackTrace()) {
-            try(Formatter formatter = new Formatter(stackTraceBuilder)) {
-                formatter.format("%s.%s(%s:%d)%n", stackTraceElement.getClassName(),
-                        stackTraceElement.getMethodName(), stackTraceElement.getFileName(),
-                        stackTraceElement.getLineNumber());
+            try (Formatter formatter = new Formatter(stackTraceBuilder)) {
+                formatter.format("%s.%s(%s:%d)%n", stackTraceElement.getClassName(), stackTraceElement.getMethodName(),
+                        stackTraceElement.getFileName(), stackTraceElement.getLineNumber());
             }
         }
         return stackTraceBuilder.toString();

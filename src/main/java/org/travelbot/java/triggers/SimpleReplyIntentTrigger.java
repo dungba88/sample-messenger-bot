@@ -19,10 +19,10 @@ public class SimpleReplyIntentTrigger extends AbstractTrigger<IntentRequest, Bas
                 .getApplicationContext();
         IntentRequest request = (IntentRequest) executionContext.getRequest();
         String intent = request.getIntentResponse().getIntent();
-        
+
         String path = getPath(applicationContext, intent);
         Config cfg = applicationContext.getConfig().getConfig(path);
-        
+
         executionContext.finish(new IntentResponse(cfg.entrySet()));
         MessengerUtils.sendWithConfig(executionContext, request.getSenderId(), cfg);
     }
