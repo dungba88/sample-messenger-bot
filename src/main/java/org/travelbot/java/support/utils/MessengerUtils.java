@@ -21,16 +21,19 @@ import com.github.messenger4j.send.senderaction.SenderAction;
 import com.typesafe.config.Config;
 
 public final class MessengerUtils {
-    
+
     private MessengerUtils() {
-        
+
     }
 
     public static Promise<Boolean, Throwable> sendAction(TriggerExecutionContext executionContext, String recipientId,
             SenderAction senderAction) {
         if (recipientId == null || recipientId.isEmpty())
             return new SimpleDonePromise<>(false);
-        return AsyncUtils.supplyTask(() -> {
+        final MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext
+                .getApplicationContext();
+        AsyncTaskRunner runner = applicationContext.getTaskRunner();
+        return runner.supplyTask(() -> {
             final PayloadFactory payloadFactory = new SenderActionPayloadFactory(senderAction);
             return sendWithPayloadFactory(executionContext, payloadFactory, recipientId);
         });
@@ -45,7 +48,10 @@ public final class MessengerUtils {
             String recipientId, String text, Optional<List<QuickReply>> quickReplies) {
         if (recipientId == null || recipientId.isEmpty())
             return new SimpleDonePromise<>(false);
-        return AsyncUtils.supplyTask(() -> {
+        final MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext
+                .getApplicationContext();
+        AsyncTaskRunner runner = applicationContext.getTaskRunner();
+        return runner.supplyTask(() -> {
             final PayloadFactory payloadFactory = new QuickRepliesPayloadFactory(text, quickReplies);
             return sendWithPayloadFactory(executionContext, payloadFactory, recipientId);
         });
@@ -55,7 +61,10 @@ public final class MessengerUtils {
             String recipientId, Config cfg) {
         if (recipientId == null || recipientId.isEmpty())
             return new SimpleDonePromise<>(false);
-        return AsyncUtils.supplyTask(() -> {
+        final MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext
+                .getApplicationContext();
+        AsyncTaskRunner runner = applicationContext.getTaskRunner();
+        return runner.supplyTask(() -> {
             final PayloadFactory payloadFactory = PayloadAbstractFactory.createFactory(cfg);
             if (payloadFactory == null)
                 return false;
@@ -67,7 +76,7 @@ public final class MessengerUtils {
             PayloadFactory payloadFactory, String recipientId) {
         if (recipientId == null || recipientId.isEmpty())
             return false;
-        
+
         final Payload payload = payloadFactory.create(recipientId);
 
         final MessengerApplicationContext applicationContext = (MessengerApplicationContext) executionContext
