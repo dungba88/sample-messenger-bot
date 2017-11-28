@@ -7,7 +7,7 @@ import com.github.messenger4j.send.senderaction.SenderAction;
 public class SenderActionPayloadFactory implements PayloadFactory {
 
     private final SenderAction senderAction;
-    
+
     public SenderActionPayloadFactory(SenderAction senderAction) {
         this.senderAction = senderAction;
     }

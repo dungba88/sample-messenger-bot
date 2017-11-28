@@ -11,7 +11,8 @@ public class AnnotatedExecutionContextFinishMessage extends AnnotatedGelfMessage
 
     private ExecutionContextFinishMessage msg;
 
-    public AnnotatedExecutionContextFinishMessage(ObjectMapper mapper, ExecutionContextFinishMessage msg, Long elapsed) {
+    public AnnotatedExecutionContextFinishMessage(ObjectMapper mapper, ExecutionContextFinishMessage msg,
+            Long elapsed) {
         super();
         this.msg = msg;
         putField("executionContextId", msg.getId());

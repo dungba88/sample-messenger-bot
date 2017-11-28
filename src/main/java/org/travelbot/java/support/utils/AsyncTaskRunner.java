@@ -13,7 +13,7 @@ import lombok.Getter;
 public class AsyncTaskRunner {
 
     private final @Getter Executor executor;
-    
+
     public AsyncTaskRunner(int noThreads) {
         this.executor = Executors.newFixedThreadPool(noThreads);
     }
