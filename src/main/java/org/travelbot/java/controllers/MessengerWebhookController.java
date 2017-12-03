@@ -11,6 +11,7 @@ import org.travelbot.java.dto.messenger.MessengerEvent;
 import org.travelbot.java.support.exceptions.BadRequestException;
 import org.travelbot.java.support.exceptions.UnauthorizedAccessException;
 import org.travelbot.java.support.logging.HttpRequestMessage;
+import org.travelbot.java.triggers.EventType;
 
 import com.github.messenger4j.Messenger;
 import com.github.messenger4j.exception.MessengerVerificationException;
@@ -77,11 +78,11 @@ public class MessengerWebhookController extends VertxMessageController {
 
     private String getEventNameForMessengerEvent(Event event) {
         if (event.isTextMessageEvent())
-            return "fb_msg_received";
+            return EventType.FB_MSG_RECEIVED.value();
         if (event.isQuickReplyMessageEvent())
-            return "fb_reply_received";
+            return EventType.FB_REPLY_RECEIVED.value();
         if (event.isAttachmentMessageEvent())
-            return "fb_attachment_received";
+            return EventType.FB_ATTACHMENT_RECEIVED.value();
         return null;
     }
 }

@@ -12,9 +12,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.core.config.plugins.util.PluginManager;
 import org.joo.scorpius.ApplicationContext;
+import org.joo.scorpius.Bootstrap;
+import org.joo.scorpius.support.bootstrap.CompositionBootstrap;
 import org.joo.scorpius.support.builders.ApplicationContextBuilder;
 import org.joo.scorpius.support.builders.contracts.IdGenerator;
 import org.joo.scorpius.support.builders.id.TimeBasedIdGenerator;
+import org.joo.scorpius.support.typesafe.TriggerTypeSafeBootstrap;
+import org.joo.scorpius.support.typesafe.TypeSafeBootstrap;
 import org.joo.scorpius.trigger.TriggerManager;
 import org.joo.scorpius.trigger.impl.DefaultTriggerManager;
 import org.junit.Test;
@@ -30,6 +34,8 @@ import com.github.messenger4j.nlp.NlpEntity;
 import com.github.messenger4j.webhook.Event;
 import com.github.messenger4j.webhook.event.BaseEvent;
 import com.github.messenger4j.webhook.event.TextMessageEvent;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 @RunWith(Parameterized.class)
 public class TestPerf {
@@ -55,10 +61,16 @@ public class TestPerf {
                 return new MessengerApplicationContext(getInjector());
             }
         }.build();
+
         applicationContext.override(IdGenerator.class, new TimeBasedIdGenerator());
+        applicationContext.override(Config.class, ConfigFactory.load());
+        
         TriggerManager manager = new DefaultTriggerManager(applicationContext);
 
-        new TriggerConfigurator(manager, applicationContext).configureTriggers();
+        Bootstrap bootstrap = new CompositionBootstrap(new TypeSafeBootstrap(), new TriggerTypeSafeBootstrap(), new TriggerConfigurator());
+        bootstrap.setApplicationContext(applicationContext);
+        bootstrap.setTriggerManager(manager);
+        bootstrap.run();
 
         MessengerEvent event = new MessengerEvent(new Event(baseEvent));
         event.attachTraceId(Optional.empty());
@@ -90,13 +102,14 @@ public class TestPerf {
         }
 
         long elapsed = System.nanoTime() - start;
+        long pace = iterations * 1000000000L / elapsed;
 
-        System.out.println("total (ms): " + (elapsed / 1000000) + "ms");
+        System.out.println("Total (ms): " + (elapsed / 1000000) + "ms");
         System.out.println("Average (us): " + (elapsed / iterations / 1000) + "us");
-        System.out.println("Average (ns): " + (elapsed / iterations) + "ns");
+        System.out.println("Pace: " + pace + " ops/sec");
 
         try {
-            Thread.sleep(3000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

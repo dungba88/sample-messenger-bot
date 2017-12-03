@@ -41,10 +41,11 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
         MessengerUtils.sendAction(executionContext, senderId, SenderAction.TYPING_ON);
 
         // call trigger to parse intent
-        manager.fire("parse_intent", new ParseIntentRequest(traceId, text, event)).fail(executionContext::fail)
-                .pipeDone((PipeDoneCallback<BaseResponse, BaseResponse, Throwable>) response -> {
+        manager.fire(EventType.PARSE_INTENT.value(), new ParseIntentRequest(traceId, text, event))
+                .fail(executionContext::fail)
+                .pipeDone((PipeDoneCallback<BaseResponse, BaseResponse, Exception>) response -> {
                     if (response == null)
-                        return (Promise) manager.fire("no_intent", event);
+                        return (Promise) manager.fire(EventType.NO_INTENT.value(), event);
 
                     ParseIntentResponse intentResponse = (ParseIntentResponse) response;
 

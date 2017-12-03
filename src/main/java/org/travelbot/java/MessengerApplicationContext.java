@@ -2,15 +2,11 @@ package org.travelbot.java;
 
 import org.joo.scorpius.ApplicationContext;
 import org.joo.scorpius.support.di.ApplicationModuleInjector;
-import org.travelbot.java.support.serializers.ConfigValueSerializer;
+import org.travelbot.java.support.utils.AsyncTaskRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.github.messenger4j.Messenger;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValue;
 
 import lombok.Getter;
 
@@ -30,16 +26,19 @@ public class MessengerApplicationContext extends ApplicationContext {
 
     private @Getter ObjectMapper objectMapper;
 
+    private @Getter AsyncTaskRunner taskRunner;
+
     public MessengerApplicationContext(ApplicationModuleInjector injector) {
         super(injector);
-        this.messenger = Messenger.create(ACCESS_TOKEN, APP_SECRET, VERIFY_TOKEN);
-        this.config = ConfigFactory.load();
-        this.config.checkValid(ConfigFactory.defaultReference());
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        final SimpleModule module = new SimpleModule();
-        module.addSerializer(ConfigValue.class, new ConfigValueSerializer());
-        this.objectMapper.registerModule(module);
+    }
+
+    @Override
+    protected void refreshCachedProperties() {
+        super.refreshCachedProperties();
+        this.messenger = getInstance(Messenger.class);
+        this.config = getInstance(Config.class);
+        this.objectMapper = getInstance(ObjectMapper.class);
+        this.taskRunner = getInstance(AsyncTaskRunner.class);
     }
 
     public int getPort() {

@@ -11,11 +11,11 @@ public class ParseIntentResponse extends BaseResponse {
     private static final long serialVersionUID = -2405093486571072528L;
 
     private final @Getter String intent;
-    
+
     private final @Getter double confidence;
-    
+
     private final @Getter NlpEntity[] intentEntities;
-    
+
     public ParseIntentResponse(final String intent, final double confidence, final NlpEntity[] intentEntities) {
         this.intent = intent;
         this.confidence = confidence;

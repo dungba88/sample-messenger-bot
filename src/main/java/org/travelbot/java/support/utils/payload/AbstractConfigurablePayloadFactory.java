@@ -9,7 +9,7 @@ public abstract class AbstractConfigurablePayloadFactory implements PayloadFacto
     protected final Config cfg;
 
     protected final MessengerMapper mapper;
-    
+
     public AbstractConfigurablePayloadFactory(Config cfg) {
         this.cfg = cfg;
         this.mapper = new MessengerMapper();
