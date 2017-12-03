@@ -1,19 +1,15 @@
 package org.travelbot.java;
 
-import java.util.List;
-import java.util.Objects;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joo.scorpius.ApplicationContext;
 import org.joo.scorpius.support.BaseRequest;
+import org.joo.scorpius.support.bootstrap.AbstractBootstrap;
 import org.joo.scorpius.support.message.CustomMessage;
 import org.joo.scorpius.support.message.ExecutionContextExceptionMessage;
 import org.joo.scorpius.support.message.ExecutionContextFinishMessage;
 import org.joo.scorpius.support.message.ExecutionContextStartMessage;
-import org.joo.scorpius.trigger.Trigger;
-import org.joo.scorpius.trigger.TriggerConfig;
 import org.joo.scorpius.trigger.TriggerEvent;
-import org.joo.scorpius.trigger.TriggerManager;
 import org.joo.scorpius.trigger.handle.disruptor.DisruptorHandlingStrategy;
 import org.travelbot.java.dto.messenger.MessengerEvent;
 import org.travelbot.java.support.logging.AnnotatedExecutionContextExceptionMessage;
@@ -29,38 +25,18 @@ import com.github.messenger4j.send.MessagePayload;
 import com.github.messenger4j.send.Payload;
 import com.github.messenger4j.send.message.TextMessage;
 import com.lmax.disruptor.YieldingWaitStrategy;
-import com.lmax.disruptor.dsl.ProducerType;
 import com.typesafe.config.Config;
 
-import lombok.Getter;
-
-public class TriggerConfigurator {
+public class TriggerConfigurator extends AbstractBootstrap {
 
     private static final Logger logger = LogManager.getLogger(TriggerConfigurator.class);
 
-    private final TriggerManager triggerManager;
+    private ObjectMapper mapper;
 
-    private final MessengerApplicationContext applicationContext;
-
-    private final ObjectMapper mapper;
-
-    public TriggerConfigurator(TriggerManager triggerManager, MessengerApplicationContext applicationContext) {
-        this.triggerManager = triggerManager;
-        this.applicationContext = applicationContext;
-        this.mapper = applicationContext.getObjectMapper();
-    }
-
-    public void configureTriggers() {
-        triggerManager.setHandlingStrategy(
-                new DisruptorHandlingStrategy(1024, ProducerType.SINGLE, new YieldingWaitStrategy()));
-
-        List<? extends Config> configList = applicationContext.getConfig().getConfigList("triggers");
-
-        configList.stream().map(this::parseTriggerConfig).filter(Objects::nonNull)
-                .forEach(cfg -> triggerManager.registerTrigger(cfg.getEvent(), cfg.getConfig()));
-
+    public void run() {
+        mapper = applicationContext.getInstance(ObjectMapper.class);
+        triggerManager.setHandlingStrategy(new DisruptorHandlingStrategy(1024, new YieldingWaitStrategy()));
         registerEventHandlers();
-
         warmup();
     }
 
@@ -69,59 +45,35 @@ public class TriggerConfigurator {
             triggerManager.fire("parse_intent", null);
     }
 
-    private TriggerConfigWrapper parseTriggerConfig(Config cfg) {
-        String condition = cfg.hasPath("condition") ? cfg.getString("condition") : null;
-        String action = cfg.getString("action");
+    protected void registerEventHandlers() {
+        Config config = applicationContext.getInstance(Config.class);
 
-        TriggerConfig config;
-        try {
-            config = parseTriggerConfig(condition, action);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            if (logger.isErrorEnabled())
-                logger.error("Exception occurred while trying to load triggers", e);
-            return null;
+        if (config.getBoolean("log.trigger.exception")) {
+            final boolean sendExceptionToUser = config.getBoolean("log.trigger.send_exception");
+            registerTriggerExceptionHandler(applicationContext, sendExceptionToUser);
         }
 
-        return new TriggerConfigWrapper(cfg.getString("event"), config);
-    }
-
-    @SuppressWarnings("unchecked")
-    private TriggerConfig parseTriggerConfig(String condition, String action)
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        TriggerConfig config = new TriggerConfig();
-        if (condition != null)
-            config.withCondition(condition);
-        Class<Trigger<?, ?>> clazz = (Class<Trigger<?, ?>>) Class.forName(action);
-        config.withAction(clazz.newInstance());
-        return config;
-    }
-
-    protected void registerEventHandlers() {
-        if (applicationContext.getConfig().getBoolean("log.trigger.exception"))
-            registerTriggerExceptionHandler(applicationContext);
-
-        if (applicationContext.getConfig().getBoolean("log.trigger.create"))
+        if (config.getBoolean("log.trigger.create"))
             registerTriggerCreateHandler();
 
-        if (applicationContext.getConfig().getBoolean("log.trigger.start"))
+        if (config.getBoolean("log.trigger.start"))
             registerTriggerStartHandler();
 
-        if (applicationContext.getConfig().getBoolean("log.trigger.finish"))
+        if (config.getBoolean("log.trigger.finish"))
             registerTriggerFinishHandler();
 
-        if (applicationContext.getConfig().getBoolean("log.trigger.custom"))
+        if (config.getBoolean("log.trigger.custom"))
             registerTriggerCustomHandler();
     }
 
-    private void registerTriggerExceptionHandler(MessengerApplicationContext msgApplicationContext) {
-        final boolean sendExceptionToUser = msgApplicationContext.getConfig().getBoolean("log.trigger.send_exception");
+    private void registerTriggerExceptionHandler(ApplicationContext applicationContext, boolean sendExceptionToUser) {
         triggerManager.addEventHandler(TriggerEvent.EXCEPTION, (event, msg) -> {
             ExecutionContextExceptionMessage exceptionMessage = (ExecutionContextExceptionMessage) msg;
             if (logger.isErrorEnabled())
                 logger.error(new AnnotatedExecutionContextExceptionMessage(mapper, exceptionMessage));
 
             if (sendExceptionToUser)
-                sendExceptionToUser(msgApplicationContext, exceptionMessage);
+                sendExceptionToUser((MessengerApplicationContext) applicationContext, exceptionMessage);
         });
     }
 
@@ -179,16 +131,4 @@ public class TriggerConfigurator {
         });
     }
 
-}
-
-class TriggerConfigWrapper {
-
-    private final @Getter String event;
-
-    private final @Getter TriggerConfig config;
-
-    public TriggerConfigWrapper(final String event, final TriggerConfig config) {
-        this.event = event;
-        this.config = config;
-    }
 }
