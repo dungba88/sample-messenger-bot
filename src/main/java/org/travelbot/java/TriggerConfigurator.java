@@ -5,12 +5,10 @@ import org.apache.logging.log4j.Logger;
 import org.joo.scorpius.ApplicationContext;
 import org.joo.scorpius.support.BaseRequest;
 import org.joo.scorpius.support.bootstrap.AbstractBootstrap;
-import org.joo.scorpius.support.message.CustomMessage;
 import org.joo.scorpius.support.message.ExecutionContextExceptionMessage;
 import org.joo.scorpius.trigger.TriggerEvent;
 import org.joo.scorpius.trigger.handle.disruptor.DisruptorHandlingStrategy;
 import org.travelbot.java.dto.messenger.MessengerEvent;
-import org.travelbot.java.support.logging.HttpRequestMessage;
 
 import com.github.messenger4j.exception.MessengerApiException;
 import com.github.messenger4j.exception.MessengerIOException;
@@ -38,12 +36,8 @@ public class TriggerConfigurator extends AbstractBootstrap {
     protected void registerEventHandlers() {
         Config config = applicationContext.getInstance(Config.class);
 
-        if (config.getBoolean("log.trigger.exception") && config.getBoolean("log.trigger.send_exception")) {
+        if (config.getBoolean("log.trigger.exception") && config.getBoolean("log.trigger.send_exception"))
             registerTriggerExceptionHandler(applicationContext);
-        }
-
-        if (config.getBoolean("log.trigger.custom"))
-            registerTriggerCustomHandler();
     }
 
     private void registerTriggerExceptionHandler(ApplicationContext applicationContext) {
@@ -68,17 +62,4 @@ public class TriggerConfigurator extends AbstractBootstrap {
                 logger.debug("Exception occurred while trying to send exception to user", e);
         }
     }
-
-    private void registerTriggerCustomHandler() {
-        triggerManager.addEventHandler(TriggerEvent.CUSTOM, (event, msg) -> {
-            CustomMessage customMsg = (CustomMessage) msg;
-            if (!(customMsg.getCustomObject() instanceof HttpRequestMessage))
-                return;
-            HttpRequestMessage httpMsg = (HttpRequestMessage) customMsg.getCustomObject();
-            httpMsg.putField("eventName", customMsg.getName());
-            if (logger.isDebugEnabled())
-                logger.debug(httpMsg);
-        });
-    }
-
 }

@@ -61,6 +61,9 @@ public class MessengerCompositionBootstrap extends CompositionBootstrap {
         if (config.getBoolean("log.trigger.finish"))
             events.add(TriggerEvent.FINISH);
 
+        if (config.getBoolean("log.trigger.custom"))
+            events.add(TriggerEvent.CUSTOM);
+
         return events.toArray(new TriggerEvent[0]);
     }
 
