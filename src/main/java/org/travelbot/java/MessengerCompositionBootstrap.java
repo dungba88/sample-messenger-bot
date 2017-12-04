@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.core.config.plugins.util.PluginManager;
 import org.joo.scorpius.Bootstrap;
-import org.joo.scorpius.support.bootstrap.AbstractBootstrap;
 import org.joo.scorpius.support.bootstrap.CompositionBootstrap;
 import org.joo.scorpius.support.builders.contracts.IdGenerator;
 import org.joo.scorpius.support.builders.id.TimeBasedIdGenerator;
@@ -36,7 +35,8 @@ public class MessengerCompositionBootstrap extends CompositionBootstrap {
     protected void configureBootstraps(List<Bootstrap> bootstraps) {
         MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
 
-        bootstraps.add(AbstractBootstrap.from(() -> configureOverridens(msgApplicationContext)));
+        configureOverridens(msgApplicationContext);
+
         bootstraps.add(new TypeSafeBootstrap());
         bootstraps.add(new TriggerTypeSafeBootstrap());
         bootstraps.add(new TriggerConfigurator());
