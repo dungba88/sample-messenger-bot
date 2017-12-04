@@ -3,7 +3,7 @@ package org.travelbot.java;
 import org.joo.scorpius.Application;
 import org.joo.scorpius.ApplicationContext;
 import org.joo.scorpius.support.builders.ApplicationContextBuilder;
-import org.travelbot.java.MessengerBootstrap;
+import org.travelbot.java.MessengerCompositionBootstrap;
 
 public class Main {
 
@@ -15,6 +15,6 @@ public class Main {
                 return new MessengerApplicationContext(getInjector());
             }
         });
-        app.run(new MessengerBootstrap());
+        app.run(new MessengerCompositionBootstrap());
     }
 }

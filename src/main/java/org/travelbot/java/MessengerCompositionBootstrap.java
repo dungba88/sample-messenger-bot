@@ -24,7 +24,7 @@ import com.typesafe.config.ConfigValue;
 
 import io.vertx.core.VertxOptions;
 
-public class MessengerBootstrap extends CompositionBootstrap {
+public class MessengerCompositionBootstrap extends CompositionBootstrap {
 
     static {
         PluginManager.addPackage(AnnotatedGelfJsonAppender.class.getPackage().getName());
