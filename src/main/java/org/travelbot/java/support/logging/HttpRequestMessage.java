@@ -1,6 +1,7 @@
 package org.travelbot.java.support.logging;
 
 import org.joo.scorpius.support.CommonConstants;
+import org.joo.scorpius.support.graylog.msg.AnnotatedGelfMessage;
 
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;

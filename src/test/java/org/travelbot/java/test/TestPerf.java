@@ -17,6 +17,7 @@ import org.joo.scorpius.support.bootstrap.CompositionBootstrap;
 import org.joo.scorpius.support.builders.ApplicationContextBuilder;
 import org.joo.scorpius.support.builders.contracts.IdGenerator;
 import org.joo.scorpius.support.builders.id.TimeBasedIdGenerator;
+import org.joo.scorpius.support.graylog.AnnotatedGelfJsonAppender;
 import org.joo.scorpius.support.typesafe.TriggerTypeSafeBootstrap;
 import org.joo.scorpius.support.typesafe.TypeSafeBootstrap;
 import org.joo.scorpius.trigger.TriggerManager;
@@ -28,7 +29,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.travelbot.java.MessengerApplicationContext;
 import org.travelbot.java.TriggerConfigurator;
 import org.travelbot.java.dto.messenger.MessengerEvent;
-import org.travelbot.java.support.logging.AnnotatedGelfJsonAppender;
 
 import com.github.messenger4j.nlp.NlpEntity;
 import com.github.messenger4j.webhook.Event;

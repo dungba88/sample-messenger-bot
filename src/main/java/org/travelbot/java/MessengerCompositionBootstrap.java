@@ -1,5 +1,6 @@
 package org.travelbot.java;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.core.config.plugins.util.PluginManager;
@@ -8,9 +9,11 @@ import org.joo.scorpius.support.bootstrap.AbstractBootstrap;
 import org.joo.scorpius.support.bootstrap.CompositionBootstrap;
 import org.joo.scorpius.support.builders.contracts.IdGenerator;
 import org.joo.scorpius.support.builders.id.TimeBasedIdGenerator;
+import org.joo.scorpius.support.graylog.AnnotatedGelfJsonAppender;
+import org.joo.scorpius.support.graylog.GraylogBootstrap;
 import org.joo.scorpius.support.typesafe.TriggerTypeSafeBootstrap;
 import org.joo.scorpius.support.typesafe.TypeSafeBootstrap;
-import org.travelbot.java.support.logging.AnnotatedGelfJsonAppender;
+import org.joo.scorpius.trigger.TriggerEvent;
 import org.travelbot.java.support.serializers.ConfigValueSerializer;
 import org.travelbot.java.support.utils.AsyncTaskRunner;
 
@@ -37,8 +40,28 @@ public class MessengerCompositionBootstrap extends CompositionBootstrap {
         bootstraps.add(new TypeSafeBootstrap());
         bootstraps.add(new TriggerTypeSafeBootstrap());
         bootstraps.add(new TriggerConfigurator());
+        bootstraps.add(new GraylogBootstrap(msgApplicationContext.getObjectMapper(), getEnabledEvents()));
         bootstraps.add(new MessengerVertxBootstrap(new VertxOptions().setEventLoopPoolSize(8),
                 msgApplicationContext.getPort()));
+    }
+
+    private TriggerEvent[] getEnabledEvents() {
+        List<TriggerEvent> events = new ArrayList<>();
+        Config config = applicationContext.getInstance(Config.class);
+
+        if (config.getBoolean("log.trigger.exception"))
+            events.add(TriggerEvent.EXCEPTION);
+
+        if (config.getBoolean("log.trigger.create"))
+            events.add(TriggerEvent.CREATED);
+
+        if (config.getBoolean("log.trigger.start"))
+            events.add(TriggerEvent.START);
+
+        if (config.getBoolean("log.trigger.finish"))
+            events.add(TriggerEvent.FINISH);
+
+        return events.toArray(new TriggerEvent[0]);
     }
 
     private void configureOverridens(MessengerApplicationContext msgApplicationContext) {
