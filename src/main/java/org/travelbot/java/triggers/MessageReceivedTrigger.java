@@ -50,11 +50,8 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
                     ParseIntentResponse intentResponse = (ParseIntentResponse) response;
 
                     // send user text about the intent
-                    if (applicationContext.getConfig().getBoolean("log.send_intent")) {
-                        String intentText = String.format("Recognize intent '%s' with confidence %d%%",
-                                intentResponse.getIntent(), (int) (intentResponse.getConfidence() * 100));
-                        MessengerUtils.sendText(executionContext, senderId, intentText);
-                    }
+                    if (applicationContext.getConfig().getBoolean("log.send_intent"))
+                        sendIntentToUser(executionContext, senderId, intentResponse);
 
                     // call trigger to handle intent
                     IntentRequest intentRequest = new IntentRequest(traceId, intentResponse, event);
@@ -68,6 +65,13 @@ public class MessageReceivedTrigger extends AbstractTrigger<MessengerEvent, Mess
                     // finally show typing off
                     markTypingOff(executionContext, senderId);
                 });
+    }
+
+    private void sendIntentToUser(TriggerExecutionContext executionContext, final String senderId,
+            ParseIntentResponse intentResponse) {
+        String intentText = String.format("Recognize intent '%s' with confidence %d%%", intentResponse.getIntent(),
+                (int) (intentResponse.getConfidence() * 100));
+        MessengerUtils.sendText(executionContext, senderId, intentText);
     }
 
     private void markTypingOff(TriggerExecutionContext executionContext, String senderId) {
