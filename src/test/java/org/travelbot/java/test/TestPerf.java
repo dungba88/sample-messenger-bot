@@ -56,7 +56,7 @@ public class TestPerf {
     @Test
     public void test() {
         MessengerApplicationContext applicationContext = (MessengerApplicationContext) new ApplicationContextBuilder() {
-            
+
             public ApplicationContext build() {
                 return new MessengerApplicationContext(getInjector());
             }
@@ -64,10 +64,11 @@ public class TestPerf {
 
         applicationContext.override(IdGenerator.class, new TimeBasedIdGenerator());
         applicationContext.override(Config.class, ConfigFactory.load());
-        
+
         TriggerManager manager = new DefaultTriggerManager(applicationContext);
 
-        Bootstrap bootstrap = new CompositionBootstrap(new TypeSafeBootstrap(), new TriggerTypeSafeBootstrap(), new TriggerConfigurator());
+        Bootstrap<?> bootstrap = new CompositionBootstrap(new TypeSafeBootstrap(), new TriggerTypeSafeBootstrap(),
+                new TriggerConfigurator());
         bootstrap.setApplicationContext(applicationContext);
         bootstrap.setTriggerManager(manager);
         bootstrap.run();
