@@ -14,7 +14,7 @@ import org.joo.scorpius.support.typesafe.TriggerTypeSafeBootstrap;
 import org.joo.scorpius.support.typesafe.TypeSafeBootstrap;
 import org.joo.scorpius.trigger.TriggerEvent;
 import org.travelbot.java.support.serializers.ConfigValueSerializer;
-import org.travelbot.java.support.utils.AsyncTaskRunner;
+import org.travelbot.java.utils.AsyncTaskRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

@@ -1,4 +1,4 @@
-package org.travelbot.java.support.utils.payload;
+package org.travelbot.java.support.payload;
 
 import com.typesafe.config.Config;
 

@@ -1,4 +1,4 @@
-package org.travelbot.java.support.utils.payload;
+package org.travelbot.java.support.payload;
 
 import com.github.messenger4j.send.Payload;
 import com.github.messenger4j.send.SenderActionPayload;

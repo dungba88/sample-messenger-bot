@@ -7,7 +7,7 @@ import org.joo.scorpius.trigger.impl.AbstractTrigger;
 import org.travelbot.java.MessengerApplicationContext;
 import org.travelbot.java.dto.IntentResponse;
 import org.travelbot.java.dto.messenger.MessengerEvent;
-import org.travelbot.java.support.utils.MessengerUtils;
+import org.travelbot.java.utils.MessengerUtils;
 
 import com.typesafe.config.Config;
 

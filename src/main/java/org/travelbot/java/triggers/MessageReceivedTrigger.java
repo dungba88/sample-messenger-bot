@@ -15,7 +15,7 @@ import org.travelbot.java.dto.ParseIntentRequest;
 import org.travelbot.java.dto.ParseIntentResponse;
 import org.travelbot.java.dto.messenger.MessengerEvent;
 import org.travelbot.java.dto.messenger.MessengerResponse;
-import org.travelbot.java.support.utils.MessengerUtils;
+import org.travelbot.java.utils.MessengerUtils;
 
 import com.github.messenger4j.send.senderaction.SenderAction;
 

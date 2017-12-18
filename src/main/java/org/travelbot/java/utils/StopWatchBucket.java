@@ -1,4 +1,4 @@
-package org.travelbot.java.support.utils;
+package org.travelbot.java.utils;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

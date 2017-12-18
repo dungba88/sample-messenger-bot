@@ -2,7 +2,7 @@ package org.travelbot.java;
 
 import org.joo.scorpius.ApplicationContext;
 import org.joo.scorpius.support.di.ApplicationModuleInjector;
-import org.travelbot.java.support.utils.AsyncTaskRunner;
+import org.travelbot.java.utils.AsyncTaskRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.messenger4j.Messenger;

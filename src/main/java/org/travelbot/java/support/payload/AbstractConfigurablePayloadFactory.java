@@ -1,6 +1,6 @@
-package org.travelbot.java.support.utils.payload;
+package org.travelbot.java.support.payload;
 
-import org.travelbot.java.support.utils.MessengerMapper;
+import org.travelbot.java.utils.MessengerMapper;
 
 import com.typesafe.config.Config;
 
