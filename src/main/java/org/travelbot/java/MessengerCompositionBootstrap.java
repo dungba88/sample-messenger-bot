@@ -32,7 +32,7 @@ public class MessengerCompositionBootstrap extends CompositionBootstrap {
         PluginManager.addPackage(AnnotatedGelfJsonAppender.class.getPackage().getName());
     }
 
-    protected void configureBootstraps(List<Bootstrap> bootstraps) {
+    protected void configureBootstraps(List<Bootstrap<?>> bootstraps) {
         MessengerApplicationContext msgApplicationContext = (MessengerApplicationContext) applicationContext;
 
         configureOverridens(msgApplicationContext);

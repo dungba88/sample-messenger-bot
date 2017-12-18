@@ -2,6 +2,8 @@ package org.travelbot.java;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joo.promise4j.Promise;
+import org.joo.promise4j.impl.SimpleDonePromise;
 import org.joo.scorpius.ApplicationContext;
 import org.joo.scorpius.support.BaseRequest;
 import org.joo.scorpius.support.bootstrap.AbstractBootstrap;
@@ -18,14 +20,16 @@ import com.github.messenger4j.send.message.TextMessage;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import com.typesafe.config.Config;
 
-public class TriggerConfigurator extends AbstractBootstrap {
+public class TriggerConfigurator extends AbstractBootstrap<Void> {
 
     private static final Logger logger = LogManager.getLogger(TriggerConfigurator.class);
 
-    public void run() {
+    @Override
+    public Promise<Void, Throwable> run() {
         triggerManager.setHandlingStrategy(new DisruptorHandlingStrategy(1024, new YieldingWaitStrategy()));
         registerEventHandlers();
         warmup();
+        return new SimpleDonePromise<>(null);
     }
 
     private void warmup() {

@@ -67,7 +67,7 @@ public class TestPerf {
         
         TriggerManager manager = new DefaultTriggerManager(applicationContext);
 
-        Bootstrap bootstrap = new CompositionBootstrap(new TypeSafeBootstrap(), new TriggerTypeSafeBootstrap(), new TriggerConfigurator());
+        Bootstrap<?> bootstrap = new CompositionBootstrap(new TypeSafeBootstrap(), new TriggerTypeSafeBootstrap(), new TriggerConfigurator());
         bootstrap.setApplicationContext(applicationContext);
         bootstrap.setTriggerManager(manager);
         bootstrap.run();
