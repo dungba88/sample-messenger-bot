@@ -12,11 +12,9 @@ public final class MessengerMapper {
         if (cfg.hasPath("text"))
             return mapConfigToTextQuickReply(cfg);
         return null;
-
     }
 
     private QuickReply mapConfigToTextQuickReply(Config cfg) {
-
         return TextQuickReply.create(cfg.getString("text"), cfg.getString("payload"), Optional.empty());
     }
 }
